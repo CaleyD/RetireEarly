@@ -11,6 +11,7 @@ import {
   Text,
   TextInput,
   TouchableHighlight,
+  TouchableOpacity,
   View,
   ScrollView,
   NavigatorIOS,
@@ -35,21 +36,33 @@ class InputFormInputRow extends Component {
         <Text style={styles.scenarioFormRowLabel}>
           {this.props.labelText}:
         </Text>
-        {this.props.type === 'dollar' ?
-          <TextInput style={styles.scenarioFormRowInput}
-              maxLength={9} autoCorrect={false} keyboardType='number-pad'
-              value={'$' + this.state.value.toString()}
-              onChangeText={this.onChangeDollarText.bind(this)}
-              />
-          :
-          <TextInput style={styles.scenarioFormRowInput}
-              maxLength={7} autoCorrect={false} keyboardType='decimal-pad'
-              value={(this.state.value * 100).toFixed(2).toString() + '%'}
-              onChangeText={this.onChangePercentText.bind(this)}
-              />
+        {this.props.expanded ?
+          (this.props.type === 'dollar' ?
+            <TextInput style={styles.scenarioFormRowInput}
+                maxLength={9} autoCorrect={false} keyboardType='number-pad'
+                value={'$' + this.state.value.toString()}
+                onChangeText={this.onChangeDollarText.bind(this)}
+                />
+            :
+            <TextInput style={styles.scenarioFormRowInput}
+                maxLength={7} autoCorrect={false} keyboardType='decimal-pad'
+                value={this.formatPercent(this.state.value)}
+                onChangeText={this.onChangePercentText.bind(this)}
+                />
+          ) : (
+            <Text style={styles.scenarioFormRowLabel}>
+              {this.props.type === 'dollar' ?
+                formatMoney(this.state.value) :
+                this.formatPercent(this.state.value)
+              }
+            </Text>
+          )
         }
       </View>
     );
+  }
+  formatPercent(value) {
+    return (value * 100).toFixed(2) + '%'
   }
   onChangeDollarText(text) {
     if(text[0] === '$') { text = text.substr(1); }
@@ -94,30 +107,23 @@ class InputForm extends Component {
   }
   render() {
     var scenario = this.props.scenario || {};
-    var expanded = this.state.expanded;
     return (
-      <View style={styles.scenarioForm}>
-        <InputFormInputRow labelText='Initial Portfolio Value'
-          type='dollar'
-          value={scenario.initialPortfolioValue}
-          onChange={(text)=>{this.onChange('initialPortfolioValue', text); }}/>
-        <InputFormInputRow labelText='Annual Return'
-          type='percent'
-          value={scenario.annualReturn}
-          onChange={(text)=>{this.onChange('annualReturn', text); }}/>
-        <InputFormInputRow labelText='Withdrawal Rate'
-          type='percent'
-          value={scenario.withdrawalRate}
-          onChange={(text)=>{this.onChange('withdrawalRate', text); }}/>
-        <InputFormInputRow labelText='Annual Income'
-          type='dollar'
-          value={scenario.annualIncome}
-          onChange={(text)=>{this.onChange('annualIncome', text); }}/>
-        <InputFormInputRow labelText='Annual Spending'
-          type='dollar'
-          value={scenario.annualSpending}
-          onChange={(text)=>{this.onChange('annualSpending', text); }}/>
-      </View>
+      <TouchableOpacity onPress={() => this.setState({expanded: !this.state.expanded})}>
+        <View style={styles.scenarioForm}>
+          {this.renderRow('initialPortfolioValue', 'Initial Portfolio Value', 'dollar')}
+          {this.renderRow('annualReturn', 'Annual Return', 'percent')}
+          {this.renderRow('withdrawalRate', 'Withdrawal Rate', 'percent')}
+          {this.renderRow('annualIncome', 'Annual Income', 'dollar')}
+          {this.renderRow('annualSpending', 'Annual Spending', 'dollar')}
+        </View>
+      </TouchableOpacity>
+    );
+  }
+  renderRow(propName, label, type) {
+    return (
+      <InputFormInputRow labelText={label} type={type}
+        value={this.props.scenario[propName]} expanded={this.state.expanded}
+        onChange={(text)=>this.onChange(propName, text)}/>
     );
   }
   onChange(propName, text) {
@@ -196,16 +202,15 @@ class OutlookTablePage extends Component {
     return (
       <ListView
         dataSource={datasource}
-        renderRow={this.renderRow}
+        renderRow={(rowData) =>
+            <View style={styles.outlookRow}>
+              <Text>{formatMoney(rowData.portfolioValue)}</Text>
+              <Text style={{textAlign: 'right', flex: .4}}>
+                after {rowData.years} {rowData.years === 1 ? 'year' : 'years'}
+              </Text>
+            </View>
+          }
         />
-    );
-  }
-  renderRow(rowData, ignore, rowIndex) {
-    return (
-      <View style={styles.outlookRow}>
-        <Text>{formatMoney(rowData.portfolioValue)}</Text>
-        <Text style={{textAlign: 'right', flex: .4}}>after {rowData.years} {rowData.years === 1 ? 'year' : 'years'}</Text>
-      </View>
     );
   }
 }
@@ -332,8 +337,8 @@ const styles = StyleSheet.create({
   scenarioFormRowLabel: {
     flex: 0.4,
     textAlign: 'right',
-    height: 44,
-    paddingTop: 12
+  //  height: 44,
+  //  paddingTop: 12
   },
   scenarioFormRowInput: {
     height: 44,
@@ -348,7 +353,8 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     borderRadius: 10,
     margin: 20,
-    height: 300
+    //height: 300
+    flex: .4
   },
   outlookRow: {
     //height: 30,
