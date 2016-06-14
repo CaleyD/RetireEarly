@@ -24,7 +24,7 @@ var formatMoney = require('./lib/formatMoney.js');
 
 var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 
-class InputFormDollarInputRow extends Component {
+class InputFormInputRow extends Component {
   constructor(props) {
     super(props);
     this.state = {value: (props.value || '').toString()};
@@ -35,56 +35,39 @@ class InputFormDollarInputRow extends Component {
         <Text style={styles.scenarioFormRowLabel}>
           {this.props.labelText}:
         </Text>
-        <TextInput style={styles.scenarioFormRowInput}
-            maxLength={9} autoCorrect={false} keyboardType='number-pad'
-            value={'$' + this.state.value.toString()}
-            onChangeText={this.onChangeText.bind(this)}
-            />
+        {this.props.type === 'dollar' ?
+          <TextInput style={styles.scenarioFormRowInput}
+              maxLength={9} autoCorrect={false} keyboardType='number-pad'
+              value={'$' + this.state.value.toString()}
+              onChangeText={this.onChangeDollarText.bind(this)}
+              />
+          :
+          <TextInput style={styles.scenarioFormRowInput}
+              maxLength={7} autoCorrect={false} keyboardType='decimal-pad'
+              value={(this.state.value * 100).toFixed(2).toString() + '%'}
+              onChangeText={this.onChangePercentText.bind(this)}
+              />
+        }
       </View>
     );
   }
-  onChangeText(text) {
+  onChangeDollarText(text) {
     if(text[0] === '$') { text = text.substr(1); }
     this.setState({value: text});
-    if(this.props.onChangeText) {
-      this.props.onChangeText(parseInt(text));
+    if(this.props.onChange) {
+      this.props.onChange(parseInt(text));
     }
   }
-}
-InputFormDollarInputRow.propTypes = {
-  value: PropTypes.number.isRequired,
-  labelText: PropTypes.string.isRequired
-};
-
-class InputFormPercentInputRow extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {value: props.value * 100};
-  }
-  render() {
-    return (
-      <View style={styles.scenarioFormRow}>
-        <Text style={styles.scenarioFormRowLabel}>
-          {this.props.labelText}:
-        </Text>
-
-        <TextInput style={styles.scenarioFormRowInput}
-            maxLength={9} autoCorrect={false} keyboardType='number-pad'
-            value={this.state.value.toFixed(2).toString() + '%'}
-            onChangeText={this.onChangeText.bind(this)}
-            />
-      </View>
-    );
-  }
-  onChangeText(text) {
+  onChangePercentText(text) {
     if(text.indexOf('%') >= 0) { text = text.replace('%', ''); }
     var num = Math.min(100, parseFloat(text));
     this.setState({value: num});
-    if(this.props.onChangeText) {
-      this.props.onChangeText(num / 100);
+    if(this.props.onChange) {
+      this.props.onChange(num / 100);
     }
   }
-  GetPicker() {
+  /*
+  GetPercentPicker() {
     <PickerIOS style={{width: 300, height: 300}}
         selectedValue={this.props.value.toString()}
         >
@@ -93,29 +76,47 @@ class InputFormPercentInputRow extends Component {
         return <PickerIOS.Item key={value+''} value={value.toString()} label={value.toFixed(2)+'%'} />;
       })}
     </PickerIOS>
-  }
+  }*/
 }
+InputFormInputRow.propTypes = {
+  value: PropTypes.number.isRequired,
+  labelText: PropTypes.string.isRequired,
+  type: PropTypes.oneOf(['dollar', 'percent']),
+  expanded: PropTypes.bool,
+  onChange: PropTypes.func
+};
+
 
 class InputForm extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { expanded: false };
+  }
   render() {
     var scenario = this.props.scenario || {};
+    var expanded = this.state.expanded;
     return (
       <View style={styles.scenarioForm}>
-        <InputFormDollarInputRow labelText='Initial Portfolio Value'
+        <InputFormInputRow labelText='Initial Portfolio Value'
+          type='dollar'
           value={scenario.initialPortfolioValue}
-          onChangeText={(text)=>{this.onChange('initialPortfolioValue', text); }}/>
-        <InputFormPercentInputRow labelText='Annual Return'
+          onChange={(text)=>{this.onChange('initialPortfolioValue', text); }}/>
+        <InputFormInputRow labelText='Annual Return'
+          type='percent'
           value={scenario.annualReturn}
-           onChangeText={(text)=>{this.onChange('annualReturn', text); }}/>
-        <InputFormPercentInputRow labelText='Withdrawal Rate'
+          onChange={(text)=>{this.onChange('annualReturn', text); }}/>
+        <InputFormInputRow labelText='Withdrawal Rate'
+          type='percent'
           value={scenario.withdrawalRate}
-           onChangeText={(text)=>{this.onChange('withdrawalRate', text); }}/>
-        <InputFormDollarInputRow labelText='Annual Income'
+          onChange={(text)=>{this.onChange('withdrawalRate', text); }}/>
+        <InputFormInputRow labelText='Annual Income'
+          type='dollar'
           value={scenario.annualIncome}
-           onChangeText={(text)=>{this.onChange('annualIncome', text); }}/>
-        <InputFormDollarInputRow labelText='Annual Spending'
+          onChange={(text)=>{this.onChange('annualIncome', text); }}/>
+        <InputFormInputRow labelText='Annual Spending'
+          type='dollar'
           value={scenario.annualSpending}
-           onChangeText={(text)=>{this.onChange('annualSpending', text); }}/>
+          onChange={(text)=>{this.onChange('annualSpending', text); }}/>
       </View>
     );
   }
@@ -249,7 +250,7 @@ class MainScreen extends Component {
 
         {this.state.initialized ?
           <ScrollView>
-            <InputForm scenario={scenario}/>
+            <InputForm scenario={scenario} />
           </ScrollView>
           : null
         }
