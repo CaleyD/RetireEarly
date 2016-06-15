@@ -128,7 +128,7 @@ class EarningPeriod extends Component {
   render() {
     var incomePeriod = this.props.earningPeriod;
     return (
-      <View style={styles.card}>
+      <View style={[styles.card, {marginBottom: 0}]}>
 
         <View style={[styles.cardHeader, {flexDirection: 'row'}]}>
           <Text style={{flex: .4}}>Earning period {this.props.index + 1}</Text>
@@ -454,7 +454,9 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: '#dddddd',
-    margin: 5
+    marginBottom: 5,
+    marginLeft: 5,
+    marginRight: 5
   },
   cardHeader: {
     backgroundColor: '#ffffff',
