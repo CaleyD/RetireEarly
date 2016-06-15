@@ -13,3 +13,7 @@ Maybe a better solution is presented here - http://stackoverflow.com/questions/2
 https://github.com/veddermatic/react-native-multipicker
 
 ### no built in support for UITableView (ListView doable?)
+
+# Notes to share with user
+
+taxes? assume income grows with inflation. Dollar amounts are in today's earning potential

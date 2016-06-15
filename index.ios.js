@@ -18,13 +18,23 @@ import ReactNative, {
   PickerIOS,
   Switch
 } from 'react-native';
+import PureRenderMixin from 'react-addons-pure-render-mixin';
+var update = require('react-addons-update');
+
 var scenarioStore = require('./lib/scenarioStore');
 var calc = require('./lib/calculator.js');
 var formatMoney = require('./lib/formatMoney.js');
 
 var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 
-class InputFormInputRow extends Component {
+class PureComponent extends Component {
+  constructor(props) {
+    super(props);
+    shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(this);
+  }
+}
+
+class InputFormInputRow extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {value: (props.value || '').toString()};
@@ -111,6 +121,10 @@ InputFormInputRow.propTypes = {
 };
 
 class EarningPeriod extends Component {
+  constructor(props) {
+    super(props);
+    shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(this);
+  }
   render() {
     var incomePeriod = this.props.earningPeriod;
     return (
@@ -143,13 +157,14 @@ class EarningPeriod extends Component {
     );
   }
   onChange(propName, num) {
-    // TODO: use immutable.js
-    this.props.earningPeriod[propName] = num;
-    scenarioStore.setScenario(this.props.scenario);
+    if(this.props.earningPeriod[propName] != num) {
+      var earningPeriod = JSON.parse(JSON.stringify(this.props.earningPeriod));
+      earningPeriod[propName] = num;
+      this.props.onChange(earningPeriod);
+    }
   }
   removePeriod() {
-    this.props.scenario.incomePeriods.splice(this.props.index, 1);
-    scenarioStore.setScenario(this.props.scenario);
+    this.props.onRemove();
   }
 }
 EarningPeriod.propTypes = {
@@ -158,14 +173,15 @@ EarningPeriod.propTypes = {
   allowDelete: PropTypes.bool.isRequired,
   earningPeriod: PropTypes.object.isRequired,
   scenario: PropTypes.object.isRequired,
-  expanded: PropTypes.bool.isRequired
+  expanded: PropTypes.bool.isRequired,
+  onChange: PropTypes.func.isRequired,
+  onRemove: PropTypes.func.isRequired
 };
 
-// TODO: refactor - components not PURE because of this variable!
-// TODO: implement react-addons-pure-render-mixin
+// TODO: refactor - components not technically PURE because of this variable!
 var scrollView;
 
-class InputForm extends Component {
+class InputForm extends PureComponent {
   render() {
     var scenario = this.props.scenario;
     var incomePeriods = scenario.incomePeriods;
@@ -184,18 +200,40 @@ class InputForm extends Component {
               scenario={scenario} earningPeriod={incomePeriod} index={index}
               allowDelete={incomePeriods.length > 1}
               finalEarningPeriod={index === incomePeriods.length-1}
+              onChange={(earningPeriod) => {
+                scenarioStore.setScenario(update(scenario, {
+                  incomePeriods: {
+                    $splice: [[index, 1, earningPeriod]]
+                  }
+                }));
+              }}
+              onRemove={() => {
+                scenarioStore.setScenario(update(this.props.scenario, {
+                  incomePeriods: {
+                    $splice: [[index, 1]]
+                  }
+                }));
+              }}
               />
           )}
 
           <TouchableHighlight underlayColor='#99d9f4'
               onPress={()=> {
                 var latestPeriod = incomePeriods[incomePeriods.length-1];
-                latestPeriod.years = 1;
-                incomePeriods.push({
-                  annualIncome: latestPeriod.annualIncome,
-                  annualSpending: latestPeriod.annualSpending
+
+                let newScenario = update(scenario, {
+                  incomePeriods: {$splice: [[incomePeriods.length-1, 1,
+                    {
+                      annualIncome: latestPeriod.annualIncome,
+                      annualSpending: latestPeriod.annualSpending,
+                      years: 1
+                    },
+                    {
+                      annualIncome: latestPeriod.annualIncome,
+                      annualSpending: latestPeriod.annualSpending
+                    }]]}
                 });
-                scenarioStore.setScenario(scenario);
+                scenarioStore.setScenario(newScenario);
               }}>
               <View>
                 <Text>Add earning period</Text>
@@ -216,9 +254,9 @@ class InputForm extends Component {
     );
   }
   onChange(propName, num) {
-    // TODO: use immatable.js
-    this.props.scenario[propName] = num;
-    scenarioStore.setScenario(this.props.scenario);
+    var command = {};
+    command[propName] = { $set: num };
+    scenarioStore.setScenario(update(this.props.scenario, command));
   }
 }
 InputForm.propTypes = {
@@ -226,7 +264,7 @@ InputForm.propTypes = {
   expanded: PropTypes.bool.isRequired
 };
 
-class Intro extends Component {
+class Intro extends PureComponent {
   render() {
     return (
       <View>
@@ -241,7 +279,7 @@ class Intro extends Component {
   }
 }
 
-class Outlook extends Component {
+class Outlook extends PureComponent {
   render() {
     var yearsToRetirement = Math.round(10 * this.props.retirementOutlook.yearsToRetirement) / 10;
     return (
@@ -284,7 +322,7 @@ class Outlook extends Component {
   }
 }
 
-class OutlookTablePage extends Component {
+class OutlookTablePage extends PureComponent {
   render() {
     var datasource = ds.cloneWithRows(
       this.props.annualBalances.map(function(entry, index) {
@@ -371,7 +409,6 @@ class App extends Component {
   }
 
   render() {
-    const {onExampleExit} = this.props;
 
     return (
       <NavigatorIOS
@@ -379,7 +416,6 @@ class App extends Component {
         initialRoute={{
           title: this.statics.title,
           component: MainScreen,
-          passProps: {onExampleExit},
           navigationBarHidden: true
         }}
         itemWrapperStyle={styles.itemWrapper}
