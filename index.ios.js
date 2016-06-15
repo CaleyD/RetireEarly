@@ -1,7 +1,5 @@
 /**
  * Sample React Native App
- * https://github.com/facebook/react-native
- * @flow
  */
 
 import React, { Component, PropTypes } from 'react';
@@ -17,7 +15,8 @@ import {
   NavigatorIOS,
   StatusBar,
   ListView,
-  PickerIOS
+  PickerIOS,
+  Switch
 } from 'react-native';
 var scenarioStore = require('./lib/scenarioStore');
 var calc = require('./lib/calculator.js');
@@ -32,10 +31,8 @@ class InputFormInputRow extends Component {
   }
   render() {
     return (
-      <View style={styles.scenarioFormRow}>
-        <Text style={styles.scenarioFormRowLabel}>
-          {this.props.labelText}:
-        </Text>
+      <View style={[styles.scenarioFormRow, this.props.expanded ? {height: 44} : {}]}>
+        <Text style={styles.scenarioFormRowLabel}>{this.props.labelText}:</Text>
         {this.props.expanded ?
           (this.props.type === 'dollar' ?
             <TextInput style={styles.scenarioFormRowInput}
@@ -50,7 +47,7 @@ class InputFormInputRow extends Component {
                 onChangeText={this.onChangePercentText.bind(this)}
                 />
           ) : (
-            <Text style={styles.scenarioFormRowLabel}>
+            <Text style={[styles.scenarioFormRowLabel, { textAlign: 'left', paddingLeft: 4 }]}>
               {this.props.type === 'dollar' ?
                 formatMoney(this.state.value) :
                 this.formatPercent(this.state.value)
@@ -74,7 +71,7 @@ class InputFormInputRow extends Component {
   onChangePercentText(text) {
     if(text.indexOf('%') >= 0) { text = text.replace('%', ''); }
     var num = Math.min(100, parseFloat(text));
-    this.setState({value: num});
+    this.setState({value: num / 100});
     if(this.props.onChange) {
       this.props.onChange(num / 100);
     }
@@ -94,44 +91,119 @@ class InputFormInputRow extends Component {
 InputFormInputRow.propTypes = {
   value: PropTypes.number.isRequired,
   labelText: PropTypes.string.isRequired,
-  type: PropTypes.oneOf(['dollar', 'percent']),
+  type: PropTypes.oneOf(['dollar', 'percent', 'years']),
   expanded: PropTypes.bool,
   onChange: PropTypes.func
 };
 
+class EarningPeriod extends Component {
+  render() {
+    var incomePeriod = this.props.earningPeriod;
+    return (
+      <View>
+        <Text>Earning period {this.props.index + 1}</Text>
+        {this.props.allowDelete ?
+          <TouchableHighlight underlayColor='#99d9f4' onPress={()=>this.removePeriod()}>
+              <Text style={{flex: .4, textAlign:'right'}}>Remove</Text>
+          </TouchableHighlight>
+          :
+          null
+        }
+
+        <InputFormInputRow labelText='Annual Income' type='dollar'
+          value={incomePeriod.annualIncome} expanded={this.props.expanded}
+          onChange={(num)=>this.onChange('annualIncome', num)}/>
+        <InputFormInputRow labelText='Annual Spending' type='dollar'
+          value={incomePeriod.annualSpending} expanded={this.props.expanded}
+          onChange={(num)=>this.onChange('annualSpending', num)}/>
+
+        {!this.props.finalEarningPeriod ?
+          <InputFormInputRow labelText='Years' type='dollar'
+            value={incomePeriod.years} expanded={this.props.expanded}
+            onChange={(num)=>this.onChange('years', num)}/>
+          :
+          null
+        }
+      </View>
+    );
+  }
+  onChange(propName, num) {
+    // TODO: use immutable.js
+    this.props.earningPeriod[propName] = num;
+    scenarioStore.setScenario(this.props.scenario);
+  }
+  removePeriod() {
+    this.props.scenario.incomePeriods.splice(this.props.index, 1);
+    scenarioStore.setScenario(this.props.scenario);
+  }
+}
+EarningPeriod.propTypes = {
+  index: PropTypes.number.isRequired,
+  finalEarningPeriod: PropTypes.bool.isRequired,
+  allowDelete: PropTypes.bool.isRequired,
+  earningPeriod: PropTypes.object.isRequired,
+  scenario: PropTypes.object.isRequired,
+  expanded: PropTypes.bool.isRequired
+};
 
 class InputForm extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { expanded: false };
-  }
   render() {
-    var scenario = this.props.scenario || {};
+    var scenario = this.props.scenario;
+    var incomePeriods = scenario.incomePeriods;
     return (
-      <TouchableOpacity onPress={() => this.setState({expanded: !this.state.expanded})}>
-        <View style={styles.scenarioForm}>
-          {this.renderRow('initialPortfolioValue', 'Initial Portfolio Value', 'dollar')}
-          {this.renderRow('annualReturn', 'Annual Return', 'percent')}
-          {this.renderRow('withdrawalRate', 'Withdrawal Rate', 'percent')}
-          {this.renderRow('annualIncome', 'Annual Income', 'dollar')}
-          {this.renderRow('annualSpending', 'Annual Spending', 'dollar')}
+      <View style={styles.scenarioForm}>
+        {/* TODO - allow negative values for people in debt starting out */}
+        {this.renderRow('initialPortfolioValue', 'Initial Portfolio Value', 'dollar')}
+        <Text>Market Assumptions</Text>
+        {/* TODO - add horizontal scrolling options for: conservative, moderate, aggressive */}
+        {this.renderRow('annualReturn', 'Annual Return', 'percent')}
+        {this.renderRow('withdrawalRate', 'Withdrawal Rate', 'percent')}
+
+        {incomePeriods.map((incomePeriod, index) =>
+          <EarningPeriod key={index} expanded={this.props.expanded}
+            scenario={scenario} earningPeriod={incomePeriod} index={index}
+            allowDelete={incomePeriods.length > 1}
+            finalEarningPeriod={index === incomePeriods.length-1}
+            />
+        )}
+
+        <TouchableHighlight underlayColor='#99d9f4'
+            onPress={()=> {
+              var latestPeriod = incomePeriods[incomePeriods.length-1];
+              latestPeriod.years = 1;
+              incomePeriods.push({
+                annualIncome: latestPeriod.annualIncome,
+                annualSpending: latestPeriod.annualSpending
+              });
+              scenarioStore.setScenario(scenario);
+            }}>
+            <View>
+              <Text>Add earning period</Text>
+            </View>
+        </TouchableHighlight>
+        <View>
+          <Text>Retirement Annual Expenses</Text>
         </View>
-      </TouchableOpacity>
+      </View>
     );
   }
   renderRow(propName, label, type) {
     return (
       <InputFormInputRow labelText={label} type={type}
-        value={this.props.scenario[propName]} expanded={this.state.expanded}
-        onChange={(text)=>this.onChange(propName, text)}/>
+        value={this.props.scenario[propName]} expanded={this.props.expanded}
+        onChange={(num)=>this.onChange(propName, num)}/>
     );
   }
-  onChange(propName, text) {
-    var scenario = JSON.parse(JSON.stringify(this.props.scenario || {}));
-    scenario[propName] = parseFloat(text);
-    scenarioStore.setScenario(scenario);
+  onChange(propName, num) {
+    // TODO: use immatable.js
+    this.props.scenario[propName] = num;
+    scenarioStore.setScenario(this.props.scenario);
   }
 }
+InputForm.propTypes = {
+  scenario: PropTypes.object.isRequired,
+  expanded: PropTypes.bool.isRequired
+};
 
 class Intro extends Component {
   render() {
@@ -141,7 +213,7 @@ class Intro extends Component {
           Early Retirement Calculator!
         </Text>
         <Text style={styles.instructions}>
-          Shake for dev menu
+          Your path to financial independence
         </Text>
       </View>
     );
@@ -171,24 +243,23 @@ class Outlook extends Component {
             </Text>
         }
 
-        <TouchableHighlight style={styles.button}
-            underlayColor='#99d9f4'
-            onPress={()=>{this.props.navigator.push({
-                title: "Path to Financial Independence",
-                component: OutlookTablePage,
-                backButtonTitle: 'back',
-                passProps: {
-                  toggleNavBar: this.props.toggleNavBar,
-                  annualBalances: this.props.retirementOutlook.annualBalances
-                }
-              });
-            }}
-            >
+        <TouchableHighlight underlayColor='#99d9f4'
+          onPress={()=>this.navigateToDetails()}>
           <Text style={styles.buttonText}>Go</Text>
         </TouchableHighlight>
-        <OutlookTablePage annualBalances={this.props.retirementOutlook.annualBalances}/>
       </View>
     );
+  }
+  navigateToDetails() {
+    this.props.navigator.push({
+        title: "Path to Financial Independence",
+        component: OutlookTablePage,
+        backButtonTitle: 'back',
+        passProps: {
+          toggleNavBar: this.props.toggleNavBar,
+          annualBalances: this.props.retirementOutlook.annualBalances
+        }
+      });
   }
 }
 
@@ -200,7 +271,7 @@ class OutlookTablePage extends Component {
       })
     );
     return (
-      <ListView
+      <ListView enableEmptySections={true}
         dataSource={datasource}
         renderRow={(rowData) =>
             <View style={styles.outlookRow}>
@@ -225,9 +296,12 @@ class MainScreen extends Component {
         initialPortfolioValue: 100000,
         annualReturn: .05,
         withdrawalRate: .04,
-        annualIncome: 100000,
-        annualSpending: 45000
-      }
+        incomePeriods: [{
+          annualIncome: 100000,
+          annualSpending: 45000
+        }]
+      },
+      inputsExpanded: true
     };
     scenarioStore.getScenario((err, scenario) => {
       this.setState({ scenario: scenario, initialized: true });
@@ -236,26 +310,30 @@ class MainScreen extends Component {
   }
 
   onScenarioChanged(scenario) {
-    this.setState({ scenario: JSON.parse(JSON.stringify(scenario)) });
+    this.setState({ scenario });
   }
 
   render() {
     var scenario = this.state.scenario;
 
     var retirementOutlook = calc.calculate(
-      scenario.annualIncome, scenario.annualSpending,
+      scenario.incomePeriods[0].annualIncome,
+      scenario.incomePeriods[0].annualSpending,
       scenario.initialPortfolioValue, scenario.annualReturn,
       scenario.withdrawalRate);
 
     // using ScrollView for dismiss keyboard functionality
     return (
-      <ScrollView contentContainerStyle={styles.container} scrollEnabled={false} style={{backgroundColor:'green'}}>
+      <ScrollView contentContainerStyle={styles.container} scrollEnabled={false}
+          style={{backgroundColor:'green'}}>
 
         <Intro/>
 
         {this.state.initialized ?
-          <ScrollView>
-            <InputForm scenario={scenario} />
+          <ScrollView scrollEnabled={this.state.inputsExpanded}>
+            <TouchableOpacity onPress={() => this.setState({inputsExpanded: !this.state.inputsExpanded})}>
+              <InputForm scenario={scenario} expanded={this.state.inputsExpanded}/>
+            </TouchableOpacity>
           </ScrollView>
           : null
         }
@@ -274,7 +352,7 @@ class App extends Component {
     super(props);
     this.statics = {
       title: '<NavigatorIOS>',
-      description: 'iOS navigation capabilities',
+      description: 'Early Retirement Calculator',
       external: true,
     };
   }
@@ -309,6 +387,7 @@ const styles = StyleSheet.create({
   },
   welcome: {
     fontSize: 20,
+    fontFamily: 'Verdana',
     textAlign: 'center',
     margin: 10,
     color: 'white'
@@ -317,8 +396,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: '#333333',
     marginBottom: 5,
-  },
-  button: {
   },
   buttonText: {
     color: '#ff0000'
@@ -332,17 +409,14 @@ const styles = StyleSheet.create({
   scenarioFormRow: {
     flex: 1,
     flexDirection: 'row',
-    //height: 44
+    justifyContent: 'center'
   },
   scenarioFormRowLabel: {
     flex: 0.4,
-    textAlign: 'right',
-  //  height: 44,
-  //  paddingTop: 12
+    textAlign: 'right'
   },
   scenarioFormRowInput: {
-    height: 44,
-    flex: .4,
+    flex: 0.4,
     fontSize: 13,
     padding: 4,
     color: 'blue'
@@ -351,13 +425,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     //flex: .7,
     flexDirection: 'column',
-    borderRadius: 10,
-    margin: 20,
+    marginHorizontal: 10,
     //height: 300
     flex: .4
   },
   outlookRow: {
-    //height: 30,
     padding: 5,
     borderBottomWidth: 1,
     borderBottomColor: '#cecece',
