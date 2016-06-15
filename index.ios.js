@@ -3,7 +3,7 @@
  */
 
 import React, { Component, PropTypes } from 'react';
-import {
+import ReactNative, {
   AppRegistry,
   StyleSheet,
   Text,
@@ -39,12 +39,16 @@ class InputFormInputRow extends Component {
                 maxLength={9} autoCorrect={false} keyboardType='number-pad'
                 value={'$' + this.state.value.toString()}
                 onChangeText={this.onChangeDollarText.bind(this)}
+                ref={(c) => this._input = c }
+                onFocus={this.inputFocused.bind(this)}
                 />
             :
             <TextInput style={styles.scenarioFormRowInput}
                 maxLength={7} autoCorrect={false} keyboardType='decimal-pad'
                 value={this.formatPercent(this.state.value)}
                 onChangeText={this.onChangePercentText.bind(this)}
+                ref={(c) => this._input = c }
+                onFocus={this.inputFocused.bind(this)}
                 />
           ) : (
             <Text style={[styles.scenarioFormRowLabel, { textAlign: 'left', paddingLeft: 4 }]}>
@@ -75,6 +79,16 @@ class InputFormInputRow extends Component {
     if(this.props.onChange) {
       this.props.onChange(num / 100);
     }
+  }
+  inputFocused(refName) {
+    setTimeout(() => {
+      let scrollResponder = scrollView.getScrollResponder();
+      scrollResponder.scrollResponderScrollNativeHandleToKeyboard(
+        ReactNative.findNodeHandle(this._input),
+        110, //additionalOffset
+        true
+      );
+    }, 50);
   }
   /*
   GetPercentPicker() {
@@ -115,7 +129,8 @@ class EarningPeriod extends Component {
           onChange={(num)=>this.onChange('annualIncome', num)}/>
         <InputFormInputRow labelText='Annual Spending' type='dollar'
           value={incomePeriod.annualSpending} expanded={this.props.expanded}
-          onChange={(num)=>this.onChange('annualSpending', num)}/>
+          onChange={(num)=>this.onChange('annualSpending', num)}
+          inputRefName={'annualSpending'+this.props.index}/>
 
         {!this.props.finalEarningPeriod ?
           <InputFormInputRow labelText='Years' type='dollar'
@@ -146,45 +161,51 @@ EarningPeriod.propTypes = {
   expanded: PropTypes.bool.isRequired
 };
 
+// TODO: refactor - components not PURE because of this variable!
+// TODO: implement react-addons-pure-render-mixin
+var scrollView;
+
 class InputForm extends Component {
   render() {
     var scenario = this.props.scenario;
     var incomePeriods = scenario.incomePeriods;
     return (
-      <View style={styles.scenarioForm}>
-        {/* TODO - allow negative values for people in debt starting out */}
-        {this.renderRow('initialPortfolioValue', 'Initial Portfolio Value', 'dollar')}
-        <Text>Market Assumptions</Text>
-        {/* TODO - add horizontal scrolling options for: conservative, moderate, aggressive */}
-        {this.renderRow('annualReturn', 'Annual Return', 'percent')}
-        {this.renderRow('withdrawalRate', 'Withdrawal Rate', 'percent')}
+      <ScrollView alwaysBounceVertical={false} ref={(c) => scrollView = c}>
+        <View style={styles.scenarioForm}>
+          {/* TODO - allow negative values for people in debt starting out */}
+          {this.renderRow('initialPortfolioValue', 'Initial Portfolio Value', 'dollar')}
+          <Text>Market Assumptions</Text>
+          {/* TODO - add horizontal scrolling options for: conservative, moderate, aggressive */}
+          {this.renderRow('annualReturn', 'Annual Return', 'percent')}
+          {this.renderRow('withdrawalRate', 'Withdrawal Rate', 'percent')}
 
-        {incomePeriods.map((incomePeriod, index) =>
-          <EarningPeriod key={index} expanded={this.props.expanded}
-            scenario={scenario} earningPeriod={incomePeriod} index={index}
-            allowDelete={incomePeriods.length > 1}
-            finalEarningPeriod={index === incomePeriods.length-1}
-            />
-        )}
+          {incomePeriods.map((incomePeriod, index) =>
+            <EarningPeriod key={index} expanded={this.props.expanded}
+              scenario={scenario} earningPeriod={incomePeriod} index={index}
+              allowDelete={incomePeriods.length > 1}
+              finalEarningPeriod={index === incomePeriods.length-1}
+              />
+          )}
 
-        <TouchableHighlight underlayColor='#99d9f4'
-            onPress={()=> {
-              var latestPeriod = incomePeriods[incomePeriods.length-1];
-              latestPeriod.years = 1;
-              incomePeriods.push({
-                annualIncome: latestPeriod.annualIncome,
-                annualSpending: latestPeriod.annualSpending
-              });
-              scenarioStore.setScenario(scenario);
-            }}>
-            <View>
-              <Text>Add earning period</Text>
-            </View>
-        </TouchableHighlight>
-        <View>
-          <Text>Retirement Annual Expenses</Text>
+          <TouchableHighlight underlayColor='#99d9f4'
+              onPress={()=> {
+                var latestPeriod = incomePeriods[incomePeriods.length-1];
+                latestPeriod.years = 1;
+                incomePeriods.push({
+                  annualIncome: latestPeriod.annualIncome,
+                  annualSpending: latestPeriod.annualSpending
+                });
+                scenarioStore.setScenario(scenario);
+              }}>
+              <View>
+                <Text>Add earning period</Text>
+              </View>
+          </TouchableHighlight>
+          <View>
+            <Text>Retirement Annual Expenses</Text>
+          </View>
         </View>
-      </View>
+      </ScrollView>
     );
   }
   renderRow(propName, label, type) {
@@ -316,11 +337,7 @@ class MainScreen extends Component {
   render() {
     var scenario = this.state.scenario;
 
-    var retirementOutlook = calc.calculate(
-      scenario.incomePeriods[0].annualIncome,
-      scenario.incomePeriods[0].annualSpending,
-      scenario.initialPortfolioValue, scenario.annualReturn,
-      scenario.withdrawalRate);
+    var retirementOutlook = calc.calculate(scenario);
 
     // using ScrollView for dismiss keyboard functionality
     return (
@@ -330,11 +347,7 @@ class MainScreen extends Component {
         <Intro/>
 
         {this.state.initialized ?
-          <ScrollView scrollEnabled={this.state.inputsExpanded}>
-            <TouchableOpacity onPress={() => this.setState({inputsExpanded: !this.state.inputsExpanded})}>
-              <InputForm scenario={scenario} expanded={this.state.inputsExpanded}/>
-            </TouchableOpacity>
-          </ScrollView>
+          <InputForm scenario={scenario} expanded={true}/>
           : null
         }
         {this.state.initialized && retirementOutlook ?
