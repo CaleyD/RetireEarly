@@ -128,15 +128,17 @@ class EarningPeriod extends Component {
   render() {
     var incomePeriod = this.props.earningPeriod;
     return (
-      <View>
-        <Text>Earning period {this.props.index + 1}</Text>
-        {this.props.allowDelete ?
-          <TouchableHighlight underlayColor='#99d9f4' onPress={()=>this.removePeriod()}>
-              <Text style={{flex: .4, textAlign:'right'}}>Remove</Text>
-          </TouchableHighlight>
-          :
-          null
-        }
+      <View style={styles.card}>
+
+        <View style={[styles.cardHeader, {flexDirection: 'row'}]}>
+          <Text style={{flex: .4}}>Earning period {this.props.index + 1}</Text>
+          {this.props.allowDelete ?
+            <TouchableHighlight underlayColor='#99d9f4' onPress={()=>this.removePeriod()}>
+                <Text style={{flex: .4, textAlign:'right'}}>Remove</Text>
+            </TouchableHighlight>
+            : null
+          }
+        </View>
 
         <InputFormInputRow labelText='Annual Income' type='dollar'
           value={incomePeriod.annualIncome} expanded={this.props.expanded}
@@ -189,11 +191,16 @@ class InputForm extends PureComponent {
       <ScrollView alwaysBounceVertical={false} ref={(c) => scrollView = c}>
         <View style={styles.scenarioForm}>
           {/* TODO - allow negative values for people in debt starting out */}
-          {this.renderRow('initialPortfolioValue', 'Initial Portfolio Value', 'dollar')}
-          <Text>Market Assumptions</Text>
-          {/* TODO - add horizontal scrolling options for: conservative, moderate, aggressive */}
-          {this.renderRow('annualReturn', 'Annual Return', 'percent')}
-          {this.renderRow('withdrawalRate', 'Withdrawal Rate', 'percent')}
+          <View style={styles.card}>
+            {this.renderRow('initialPortfolioValue', 'Initial Portfolio Value', 'dollar')}
+          </View>
+
+          <View style={styles.card}>
+            <Text style={styles.cardHeader}>Market Assumptions</Text>
+            {/* TODO - add horizontal scrolling options for: conservative, moderate, aggressive */}
+            {this.renderRow('annualReturn', 'Annual Return', 'percent')}
+            {this.renderRow('withdrawalRate', 'Withdrawal Rate', 'percent')}
+          </View>
 
           {incomePeriods.map((incomePeriod, index) =>
             <EarningPeriod key={index} expanded={this.props.expanded}
@@ -283,30 +290,30 @@ class Outlook extends PureComponent {
   render() {
     var yearsToRetirement = Math.round(10 * this.props.retirementOutlook.yearsToRetirement) / 10;
     return (
-      <View style={styles.outlook}>
-        {
-          yearsToRetirement === NaN ?
-            <Text>
-              You will need {formatMoney(this.props.retirementOutlook.retirementPortfolioValue)} to
-              retire but you will never get there because you are outspending your income.
-            </Text>
-          : yearsToRetirement <= 0 ?
-            <Text>
-              You need {formatMoney(this.props.retirementOutlook.retirementPortfolioValue)} and
-              you already have it - you can retire now!
-            </Text>
-          :
-            <Text>
-              You can retire in {yearsToRetirement} {yearsToRetirement === 1 ? 'year ' : 'years '}
-              with {formatMoney(this.props.retirementOutlook.retirementPortfolioValue)}
-            </Text>
-        }
+      <TouchableHighlight underlayColor='#99d9f4'
+        onPress={()=>this.navigateToDetails()}>
+        <View style={styles.outlook}>
+          {
+            yearsToRetirement === NaN ?
+              <Text>
+                You will need {formatMoney(this.props.retirementOutlook.retirementPortfolioValue)} to
+                retire but you will never get there because you are outspending your income.
+              </Text>
+            : yearsToRetirement <= 0 ?
+              <Text>
+                You need {formatMoney(this.props.retirementOutlook.retirementPortfolioValue)} and
+                you already have it - you can retire now!
+              </Text>
+            :
+              <Text>
+                You can retire in {yearsToRetirement} {yearsToRetirement === 1 ? 'year ' : 'years '}
+                with {formatMoney(this.props.retirementOutlook.retirementPortfolioValue)}
+              </Text>
+          }
 
-        <TouchableHighlight underlayColor='#99d9f4'
-          onPress={()=>this.navigateToDetails()}>
           <Text style={styles.buttonText}>Go</Text>
-        </TouchableHighlight>
-      </View>
+        </View>
+      </TouchableHighlight>
     );
   }
   navigateToDetails() {
@@ -409,7 +416,6 @@ class App extends Component {
   }
 
   render() {
-
     return (
       <NavigatorIOS
         style={styles.container}
@@ -446,6 +452,14 @@ const styles = StyleSheet.create({
     color: '#333333',
     marginBottom: 5,
   },
+  card: {
+    backgroundColor: '#dddddd',
+    margin: 5
+  },
+  cardHeader: {
+    backgroundColor: '#ffffff',
+    padding: 8
+  },
   buttonText: {
     color: '#ff0000'
   },
@@ -462,6 +476,7 @@ const styles = StyleSheet.create({
   },
   scenarioFormRowLabel: {
     flex: 0.4,
+    paddingTop: 13,
     textAlign: 'right'
   },
   scenarioFormRowInput: {
@@ -473,10 +488,11 @@ const styles = StyleSheet.create({
   outlook: {
     backgroundColor: 'white',
     //flex: .7,
-    flexDirection: 'column',
+    //flexDirection: 'column',
     marginHorizontal: 10,
-    //height: 300
-    flex: .4
+    padding: 7,
+    //height: 40,
+    //flex: .4
   },
   outlookRow: {
     padding: 5,
