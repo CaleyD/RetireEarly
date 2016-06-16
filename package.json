@@ -6,7 +6,6 @@
     "start": "node node_modules/react-native/local-cli/cli.js start"
   },
   "dependencies": {
-    "clone": "^1.0.2",
     "format-usd": "^1.0.1",
     "react": "^15.1.0",
     "react-addons-pure-render-mixin": "^15.1.0",

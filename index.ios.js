@@ -195,17 +195,20 @@ class InputForm extends PureComponent {
       <ScrollView alwaysBounceVertical={false} ref={(c) => scrollView = c}>
         <View style={styles.scenarioForm}>
           {/* TODO - allow negative values for people in debt starting out */}
-          <View style={styles.card}>
+          <View style={[styles.card, styles.rounded]}>
             {this.renderRow('initialPortfolioValue', 'Initial Portfolio Value', 'dollar')}
           </View>
 
-          <View style={styles.card}>
-            <Text style={styles.cardHeader}>Market Assumptions</Text>
+          <View style={[styles.card, styles.rounded]}>
+            <View style={[styles.cardHeader, styles.roundedTop]}>
+              <Text style={{ backgroundColor: 'transparent' }}>Market Assumptions</Text>
+            </View>
             {/* TODO - add horizontal scrolling options for: conservative, moderate, aggressive */}
             {this.renderRow('annualReturn', 'Annual Return', 'percent')}
             {this.renderRow('withdrawalRate', 'Withdrawal Rate', 'percent')}
           </View>
 
+          <View style={styles.rounded}>
           {incomePeriods.map((incomePeriod, index) =>
             <EarningPeriod key={index} expanded={this.props.expanded}
               scenario={scenario} earningPeriod={incomePeriod} index={index}
@@ -226,31 +229,32 @@ class InputForm extends PureComponent {
                 }));
               }}
               />
-          )}
-          <View style={styles.card}>
+            )}
+            <View style={styles.card}>
 
-            <TouchableHighlight underlayColor='#99d9f4'
-                onPress={()=> {
-                  var latestPeriod = incomePeriods[incomePeriods.length-1];
+              <TouchableHighlight underlayColor='#99d9f4'
+                  onPress={()=> {
+                    var latestPeriod = incomePeriods[incomePeriods.length-1];
 
-                  let newScenario = update(scenario, {
-                    incomePeriods: {$splice: [[incomePeriods.length-1, 1,
-                      {
-                        annualIncome: latestPeriod.annualIncome,
-                        annualSpending: latestPeriod.annualSpending,
-                        years: 1
-                      },
-                      {
-                        annualIncome: latestPeriod.annualIncome,
-                        annualSpending: latestPeriod.annualSpending
-                      }]]}
-                  });
-                  scenarioStore.setScenario(newScenario);
-                }}>
-                <View>
-                  <Text>Add earning period</Text>
-                </View>
-            </TouchableHighlight>
+                    let newScenario = update(scenario, {
+                      incomePeriods: {$splice: [[incomePeriods.length-1, 1,
+                        {
+                          annualIncome: latestPeriod.annualIncome,
+                          annualSpending: latestPeriod.annualSpending,
+                          years: 1
+                        },
+                        {
+                          annualIncome: latestPeriod.annualIncome,
+                          annualSpending: latestPeriod.annualSpending
+                        }]]}
+                    });
+                    scenarioStore.setScenario(newScenario);
+                  }}>
+                  <View style={[styles.button, {marginBottom: 4, marginHorizontal: 4}]}>
+                    <Text style={styles.buttonText}>Add earning period</Text>
+                  </View>
+              </TouchableHighlight>
+            </View>
           </View>
           <View>
             <Text>Retirement Annual Expenses</Text>
@@ -468,8 +472,16 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     padding: 8
   },
+  button: {
+    flex: .4,
+    padding: 8,
+    backgroundColor: 'red',
+    borderRadius: 8,
+    justifyContent: 'center'
+  },
   buttonText: {
-    color: '#ff0000'
+    color: 'white',
+    textAlign: 'center'
   },
   scenarioForm: {
     flex: 1,
@@ -485,7 +497,8 @@ const styles = StyleSheet.create({
   scenarioFormRowLabel: {
     flex: 0.4,
     paddingTop: 13,
-    textAlign: 'right'
+    textAlign: 'right',
+    backgroundColor: 'rgba(52,52,52,0)'
   },
   scenarioFormRowInput: {
     flex: 0.4,
@@ -507,6 +520,23 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#cecece',
     flexDirection: 'row'
+  },
+  roundedTop: {
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+    borderWidth: 0,
+    borderColor: 'transparent'
+  },
+  roundedBottom: {
+    borderBottomLeftRadius: 8,
+    borderBottomRightRadius: 8,
+    borderWidth: 0,
+    borderColor: 'transparent'
+  },
+  rounded: {
+    borderRadius: 8,
+    borderWidth: 0,
+    borderColor: 'transparent'
   }
 });
 
