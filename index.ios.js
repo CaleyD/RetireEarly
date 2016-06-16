@@ -14,7 +14,9 @@ import ReactNative, {
   Picker,
   Switch
 } from 'react-native';
+import NativeMethodsMixin from 'NativeMethodsMixin';
 import PureRenderMixin from 'react-addons-pure-render-mixin';
+import * as Animatable from 'react-native-animatable';
 var update = require('react-addons-update');
 
 var scenarioStore = require('./lib/scenarioStore');
@@ -129,7 +131,7 @@ class EarningPeriod extends Component {
   render() {
     var incomePeriod = this.props.earningPeriod;
     return (
-      <View style={[styles.card, {marginBottom: 0}]}>
+      <Animatable.View style={[styles.card, {marginBottom: 0}]} ref={(c)=>this._view = c}>
 
         <View style={[styles.cardHeader, {flexDirection: 'row'}]}>
           <Text style={{flex: .4}}>
@@ -158,7 +160,7 @@ class EarningPeriod extends Component {
           :
           null
         }
-      </View>
+      </Animatable.View>
     );
   }
   onChange(propName, num) {
@@ -169,7 +171,19 @@ class EarningPeriod extends Component {
     }
   }
   removePeriod() {
-    this.props.onRemove();
+    /*
+    this._view.bounceOutUp(700)//.transitionTo({opacity:.1})
+    //  .then(()=>this._view.transitionTo({flex: 0}, 900))
+    //    .then(()=>this._view.transitionTo({height: 50}, 200))
+    //      .then(()=>this._view.transitionTo({height: 0}, 200))
+    //  .then(()=>{this.props.onRemove()});
+      .then(()=>this._view.transition({height: 200}, {height: 0}))
+      */
+    //this._view.bounceOutUp(700);
+    NativeMethodsMixin.measure.call(this._view, (a,b,c,height) => {
+      this._view.transition({height}, {height: 0}, 300);
+      setTimeout(()=>this.props.onRemove(), 300);
+    });
   }
 }
 EarningPeriod.propTypes = {
@@ -177,7 +191,6 @@ EarningPeriod.propTypes = {
   finalEarningPeriod: PropTypes.bool.isRequired,
   allowDelete: PropTypes.bool.isRequired,
   earningPeriod: PropTypes.object.isRequired,
-  scenario: PropTypes.object.isRequired,
   expanded: PropTypes.bool.isRequired,
   onChange: PropTypes.func.isRequired,
   onRemove: PropTypes.func.isRequired
@@ -209,8 +222,8 @@ class InputForm extends PureComponent {
 
           <View style={styles.rounded}>
           {incomePeriods.map((incomePeriod, index) =>
-            <EarningPeriod key={index} expanded={this.props.expanded}
-              scenario={scenario} earningPeriod={incomePeriod} index={index}
+            <EarningPeriod key={JSON.stringify({incomePeriod, index})} expanded={this.props.expanded}
+              earningPeriod={incomePeriod} index={index}
               allowDelete={incomePeriods.length > 1}
               finalEarningPeriod={index === incomePeriods.length-1}
               onChange={(earningPeriod) => {
@@ -462,10 +475,11 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   card: {
-    backgroundColor: '#dddddd',
+    backgroundColor: '#eeeeee',
     marginBottom: 5,
     marginLeft: 5,
-    marginRight: 5
+    marginRight: 5,
+    overflow: 'hidden'
   },
   cardHeader: {
     backgroundColor: '#ffffff',
