@@ -1,7 +1,3 @@
-/**
- * Sample React Native App
- */
-
 import React, { Component, PropTypes } from 'react';
 import ReactNative, {
   AppRegistry,
@@ -15,7 +11,7 @@ import ReactNative, {
   NavigatorIOS,
   StatusBar,
   ListView,
-  PickerIOS,
+  Picker,
   Switch
 } from 'react-native';
 import PureRenderMixin from 'react-addons-pure-render-mixin';
@@ -52,10 +48,18 @@ class InputFormInputRow extends PureComponent {
                 ref={(c) => this._input = c }
                 onFocus={this.inputFocused.bind(this)}
                 />
-            :
+              : this.props.type === 'percent' ?
             <TextInput style={styles.scenarioFormRowInput}
                 maxLength={7} autoCorrect={false} keyboardType='decimal-pad'
                 value={this.formatPercent(this.state.value)}
+                onChangeText={this.onChangePercentText.bind(this)}
+                ref={(c) => this._input = c }
+                onFocus={this.inputFocused.bind(this)}
+                />
+              :
+            <TextInput style={styles.scenarioFormRowInput}
+                maxLength={2} autoCorrect={false} keyboardType='number-pad'
+                value={this.state.value.toString()}
                 onChangeText={this.onChangePercentText.bind(this)}
                 ref={(c) => this._input = c }
                 onFocus={this.inputFocused.bind(this)}
@@ -149,7 +153,7 @@ class EarningPeriod extends Component {
           inputRefName={'annualSpending'+this.props.index}/>
 
         {!this.props.finalEarningPeriod ?
-          <InputFormInputRow labelText='Years' type='dollar'
+          <InputFormInputRow labelText='Years' type='years'
             value={incomePeriod.years} expanded={this.props.expanded}
             onChange={(num)=>this.onChange('years', num)}/>
           :
@@ -223,29 +227,31 @@ class InputForm extends PureComponent {
               }}
               />
           )}
+          <View style={styles.card}>
 
-          <TouchableHighlight underlayColor='#99d9f4'
-              onPress={()=> {
-                var latestPeriod = incomePeriods[incomePeriods.length-1];
+            <TouchableHighlight underlayColor='#99d9f4'
+                onPress={()=> {
+                  var latestPeriod = incomePeriods[incomePeriods.length-1];
 
-                let newScenario = update(scenario, {
-                  incomePeriods: {$splice: [[incomePeriods.length-1, 1,
-                    {
-                      annualIncome: latestPeriod.annualIncome,
-                      annualSpending: latestPeriod.annualSpending,
-                      years: 1
-                    },
-                    {
-                      annualIncome: latestPeriod.annualIncome,
-                      annualSpending: latestPeriod.annualSpending
-                    }]]}
-                });
-                scenarioStore.setScenario(newScenario);
-              }}>
-              <View>
-                <Text>Add earning period</Text>
-              </View>
-          </TouchableHighlight>
+                  let newScenario = update(scenario, {
+                    incomePeriods: {$splice: [[incomePeriods.length-1, 1,
+                      {
+                        annualIncome: latestPeriod.annualIncome,
+                        annualSpending: latestPeriod.annualSpending,
+                        years: 1
+                      },
+                      {
+                        annualIncome: latestPeriod.annualIncome,
+                        annualSpending: latestPeriod.annualSpending
+                      }]]}
+                  });
+                  scenarioStore.setScenario(newScenario);
+                }}>
+                <View>
+                  <Text>Add earning period</Text>
+                </View>
+            </TouchableHighlight>
+          </View>
           <View>
             <Text>Retirement Annual Expenses</Text>
           </View>
