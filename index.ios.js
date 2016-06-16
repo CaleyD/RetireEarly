@@ -131,7 +131,7 @@ class EarningPeriod extends Component {
   render() {
     var incomePeriod = this.props.earningPeriod;
     return (
-      <Animatable.View style={[styles.card, styles.rounded]} ref={(c)=>this._view = c}>
+      <Animatable.View style={styles.card} ref={(c)=>this._view = c}>
 
         <View style={[styles.cardHeader, {flexDirection: 'row'}]}>
           <Text style={{flex: .4}}>
@@ -204,9 +204,9 @@ class InputForm extends PureComponent {
     var scenario = this.props.scenario;
     var incomePeriods = scenario.incomePeriods;
     return (
-      <View>
+      <View style={styles.container}>
         {/* TODO - allow negative values for people in debt starting out */}
-        <View style={[styles.card, styles.rounded]}>
+        <View style={styles.card}>
           {this.renderRow('initialPortfolioValue', 'Initial Portfolio Value', 'dollar')}
         </View>
 
@@ -257,7 +257,7 @@ class InputForm extends PureComponent {
             </View>
         </ScrollView>
 
-        <View style={[styles.card, styles.rounded]}>
+        <View style={styles.card}>
           <View style={[styles.cardHeader, styles.roundedTop]}>
             <Text style={{ backgroundColor: 'transparent' }}>Market Assumptions</Text>
           </View>
@@ -303,8 +303,9 @@ class Outlook extends PureComponent {
     var yearsToRetirement = Math.round(10 * this.props.retirementOutlook.yearsToRetirement) / 10;
     return (
       <TouchableHighlight underlayColor='#99d9f4'
-        onPress={()=>this.navigateToDetails()}>
-        <View style={styles.outlook}>
+        onPress={()=>this.navigateToDetails()}
+        style={styles.outlook}>
+          <View>
           {
             yearsToRetirement === NaN ?
               <Text>
@@ -408,7 +409,7 @@ class MainScreen extends Component {
           : null
         }
         {this.state.initialized && retirementOutlook ?
-          <Outlook navigator={this.props.navigator} retirementOutlook={retirementOutlook}/>
+          <Outlook style={{alignSelf:'flex-end'}} navigator={this.props.navigator} retirementOutlook={retirementOutlook}/>
           : null
         }
 
@@ -451,6 +452,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     //alignItems: 'stretch',
     backgroundColor: 'green',
+    alignItems: 'stretch'
   },
   welcome: {
     fontSize: 20,
@@ -470,7 +472,11 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     marginRight: 5,
     marginTop: 2,
-    overflow: 'hidden'
+    overflow: 'hidden',
+
+    borderRadius: 8,
+    borderWidth: 0,
+    borderColor: 'transparent'
   },
   cardHeader: {
     backgroundColor: '#ffffff',
@@ -517,10 +523,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     //flex: .7,
     //flexDirection: 'column',
-    marginHorizontal: 10,
     padding: 7,
     //height: 40,
-    //flex: .4
+    alignSelf: 'stretch'
   },
   outlookRow: {
     padding: 5,
