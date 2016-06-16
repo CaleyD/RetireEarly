@@ -60,7 +60,7 @@ class InputFormInputRow extends PureComponent {
             <TextInput style={styles.scenarioFormRowInput}
                 maxLength={2} autoCorrect={false} keyboardType='number-pad'
                 value={this.state.value.toString()}
-                onChangeText={this.onChangePercentText.bind(this)}
+                onChangeText={this.onChangeDollarText.bind(this)}
                 ref={(c) => this._input = c }
                 onFocus={this.inputFocused.bind(this)}
                 />
@@ -81,18 +81,15 @@ class InputFormInputRow extends PureComponent {
   }
   onChangeDollarText(text) {
     if(text[0] === '$') { text = text.substr(1); }
-    this.setState({value: text});
-    if(this.props.onChange) {
-      this.props.onChange(parseInt(text));
-    }
+    var num = parseInt(text) || 0;
+    this.setState({value: num});
+    this.props.onChange(num);
   }
   onChangePercentText(text) {
     if(text.indexOf('%') >= 0) { text = text.replace('%', ''); }
     var num = Math.min(100, parseFloat(text));
     this.setState({value: num / 100});
-    if(this.props.onChange) {
-      this.props.onChange(num / 100);
-    }
+    this.props.onChange(num / 100);
   }
   inputFocused(refName) {
     setTimeout(() => {
@@ -135,7 +132,9 @@ class EarningPeriod extends Component {
       <View style={[styles.card, {marginBottom: 0}]}>
 
         <View style={[styles.cardHeader, {flexDirection: 'row'}]}>
-          <Text style={{flex: .4}}>Earning period {this.props.index + 1}</Text>
+          <Text style={{flex: .4}}>
+            Earning period {this.props.index===0 && !this.props.allowDelete ? '' : this.props.index + 1}
+          </Text>
           {this.props.allowDelete ?
             <TouchableHighlight underlayColor='#99d9f4' onPress={()=>this.removePeriod()}>
                 <Text style={{flex: .4, textAlign:'right'}}>Remove</Text>
