@@ -40,7 +40,7 @@ class InputFormInputRow extends PureComponent {
   render() {
     return (
       <View style={[styles.scenarioFormRow, this.props.expanded ? {height: 44} : {}]}>
-        <Text style={styles.scenarioFormRowLabel}>{this.props.labelText}:</Text>
+        <Text style={styles.scenarioFormRowLabel}>{this.props.labelText}</Text>
         {this.props.expanded ?
           (this.props.type === 'dollar' ?
             <TextInput style={styles.scenarioFormRowInput}
@@ -131,7 +131,7 @@ class EarningPeriod extends Component {
   render() {
     var incomePeriod = this.props.earningPeriod;
     return (
-      <Animatable.View style={[styles.card, {marginBottom: 0}]} ref={(c)=>this._view = c}>
+      <Animatable.View style={styles.card} ref={(c)=>this._view = c}>
 
         <View style={[styles.cardHeader, {flexDirection: 'row'}]}>
           <Text style={{flex: .4}}>
@@ -205,72 +205,68 @@ class InputForm extends PureComponent {
     var incomePeriods = scenario.incomePeriods;
     return (
       <ScrollView alwaysBounceVertical={false} ref={(c) => scrollView = c}>
-        <View style={styles.scenarioForm}>
-          {/* TODO - allow negative values for people in debt starting out */}
-          <View style={[styles.card, styles.rounded]}>
-            {this.renderRow('initialPortfolioValue', 'Initial Portfolio Value', 'dollar')}
-          </View>
+        {/* TODO - allow negative values for people in debt starting out */}
+        <View style={[styles.card, styles.rounded]}>
+          {this.renderRow('initialPortfolioValue', 'Initial Portfolio Value', 'dollar')}
+        </View>
 
-          <View style={[styles.card, styles.rounded]}>
-            <View style={[styles.cardHeader, styles.roundedTop]}>
-              <Text style={{ backgroundColor: 'transparent' }}>Market Assumptions</Text>
-            </View>
-            {/* TODO - add horizontal scrolling options for: conservative, moderate, aggressive */}
-            {this.renderRow('annualReturn', 'Annual Return', 'percent')}
-            {this.renderRow('withdrawalRate', 'Withdrawal Rate', 'percent')}
+        <View style={[styles.card, styles.rounded]}>
+          <View style={[styles.cardHeader, styles.roundedTop]}>
+            <Text style={{ backgroundColor: 'transparent' }}>Market Assumptions</Text>
           </View>
+          {/* TODO - add horizontal scrolling options for: conservative, moderate, aggressive */}
+          {this.renderRow('annualReturn', 'Annual Return', 'percent')}
+          {this.renderRow('withdrawalRate', 'Withdrawal Rate', 'percent')}
+        </View>
 
-          <View style={styles.rounded}>
-          {incomePeriods.map((incomePeriod, index) =>
-            <EarningPeriod key={JSON.stringify({incomePeriod, index})} expanded={this.props.expanded}
-              earningPeriod={incomePeriod} index={index}
-              allowDelete={incomePeriods.length > 1}
-              finalEarningPeriod={index === incomePeriods.length-1}
-              onChange={(earningPeriod) => {
-                scenarioStore.setScenario(update(scenario, {
-                  incomePeriods: {
-                    $splice: [[index, 1, earningPeriod]]
-                  }
-                }));
-              }}
-              onRemove={() => {
-                scenarioStore.setScenario(update(this.props.scenario, {
-                  incomePeriods: {
-                    $splice: [[index, 1]]
-                  }
-                }));
-              }}
-              />
-            )}
-            <View style={styles.card}>
+        <View style={styles.rounded}>
+        {incomePeriods.map((incomePeriod, index) =>
+          <EarningPeriod key={JSON.stringify({incomePeriod, index})} expanded={this.props.expanded}
+            earningPeriod={incomePeriod} index={index}
+            allowDelete={incomePeriods.length > 1}
+            finalEarningPeriod={index === incomePeriods.length-1}
+            onChange={(earningPeriod) => {
+              scenarioStore.setScenario(update(scenario, {
+                incomePeriods: {
+                  $splice: [[index, 1, earningPeriod]]
+                }
+              }));
+            }}
+            onRemove={() => {
+              scenarioStore.setScenario(update(this.props.scenario, {
+                incomePeriods: {
+                  $splice: [[index, 1]]
+                }
+              }));
+            }}
+            />
+          )}
+          <View style={styles.card}>
+            <TouchableHighlight underlayColor='#99d9f4'
+                style={[styles.button, {marginBottom: 4, marginHorizontal: 4}]}
+                onPress={()=> {
+                  var latestPeriod = incomePeriods[incomePeriods.length-1];
 
-              <TouchableHighlight underlayColor='#99d9f4'
-                  onPress={()=> {
-                    var latestPeriod = incomePeriods[incomePeriods.length-1];
-
-                    let newScenario = update(scenario, {
-                      incomePeriods: {$splice: [[incomePeriods.length-1, 1,
-                        {
-                          annualIncome: latestPeriod.annualIncome,
-                          annualSpending: latestPeriod.annualSpending,
-                          years: 1
-                        },
-                        {
-                          annualIncome: latestPeriod.annualIncome,
-                          annualSpending: latestPeriod.annualSpending
-                        }]]}
-                    });
-                    scenarioStore.setScenario(newScenario);
-                  }}>
-                  <View style={[styles.button, {marginBottom: 4, marginHorizontal: 4}]}>
-                    <Text style={styles.buttonText}>Add earning period</Text>
-                  </View>
-              </TouchableHighlight>
-            </View>
+                  let newScenario = update(scenario, {
+                    incomePeriods: {$splice: [[incomePeriods.length-1, 1,
+                      {
+                        annualIncome: latestPeriod.annualIncome,
+                        annualSpending: latestPeriod.annualSpending,
+                        years: 1
+                      },
+                      {
+                        annualIncome: latestPeriod.annualIncome,
+                        annualSpending: latestPeriod.annualSpending
+                      }]]}
+                  });
+                  scenarioStore.setScenario(newScenario);
+                }}>
+                <Text style={styles.buttonText}>Add earning period</Text>
+            </TouchableHighlight>
           </View>
-          <View>
-            <Text>Retirement Annual Expenses</Text>
-          </View>
+        </View>
+        <View>
+          <Text>Retirement Annual Expenses</Text>
         </View>
       </ScrollView>
     );
@@ -505,16 +501,19 @@ const styles = StyleSheet.create({
   scenarioFormRow: {
     flex: 1,
     flexDirection: 'row',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#bbbbbb',
+    marginLeft: 30
   },
   scenarioFormRowLabel: {
-    flex: 0.4,
+    flex: 0.6,
     paddingTop: 13,
-    textAlign: 'right',
+    //textAlign: 'right',
     backgroundColor: 'rgba(52,52,52,0)'
   },
   scenarioFormRowInput: {
-    flex: 0.4,
+    flex: 0.3,
     fontSize: 13,
     padding: 4,
     color: 'blue'
