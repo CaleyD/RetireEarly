@@ -131,7 +131,7 @@ class EarningPeriod extends Component {
   render() {
     var incomePeriod = this.props.earningPeriod;
     return (
-      <Animatable.View style={styles.card} ref={(c)=>this._view = c}>
+      <Animatable.View style={[styles.card, styles.rounded]} ref={(c)=>this._view = c}>
 
         <View style={[styles.cardHeader, {flexDirection: 'row'}]}>
           <Text style={{flex: .4}}>
