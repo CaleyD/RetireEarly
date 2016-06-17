@@ -167,6 +167,10 @@ EarningPeriod.propTypes = {
 var scrollView;
 
 class EarningPeriodListView extends PureComponent {
+  constructor(props) {
+    super(props);
+    this._renderID = 0;
+  }
   render() {
     var incomePeriods = this.props.incomePeriods;
     return (
@@ -178,7 +182,7 @@ class EarningPeriodListView extends PureComponent {
 
           return (
             <Animatable.View style={styles.card} ref={(c)=>view = c}
-              key={JSON.stringify({incomePeriod, index})}>
+              key={index + ':' + this._renderID}>
 
               <View style={[styles.cardHeader, {flexDirection: 'row'}]}>
                 <Text style={{flex: .4}}>
@@ -248,6 +252,8 @@ class EarningPeriodListView extends PureComponent {
         }));
       }, 300);
     });
+
+    this._renderID++; // so deleted/animated-out rows don't get reused
   }
   addPeriod() {
     var incomePeriods = this.props.incomePeriods;
