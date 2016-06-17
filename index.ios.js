@@ -123,44 +123,11 @@ InputFormInputRow.propTypes = {
   onChange: PropTypes.func
 };
 
-class EarningPeriod extends Component {
-  constructor(props) {
-    super(props);
-    shouldComponentUpdate = PureRenderMixin.shouldComponentUpdate.bind(this);
-  }
+/*
+class EarningPeriod extends PureComponent {
   render() {
     var incomePeriod = this.props.earningPeriod;
     return (
-      <Animatable.View style={styles.card} ref={(c)=>this._view = c}>
-
-        <View style={[styles.cardHeader, {flexDirection: 'row'}]}>
-          <Text style={{flex: .4}}>
-            Earning period {this.props.index===0 && !this.props.allowDelete ? '' : this.props.index + 1}
-          </Text>
-          {this.props.allowDelete ?
-            <TouchableHighlight underlayColor='#99d9f4' onPress={()=>this.removePeriod()}>
-                <Text style={{flex: .4, textAlign:'right'}}>Remove</Text>
-            </TouchableHighlight>
-            : null
-          }
-        </View>
-
-        <InputFormInputRow labelText='Annual Income' type='dollar'
-          value={incomePeriod.annualIncome} expanded={this.props.expanded}
-          onChange={(num)=>this.onChange('annualIncome', num)}/>
-        <InputFormInputRow labelText='Annual Spending' type='dollar'
-          value={incomePeriod.annualSpending} expanded={this.props.expanded}
-          onChange={(num)=>this.onChange('annualSpending', num)}
-          inputRefName={'annualSpending'+this.props.index}/>
-
-        {!this.props.finalEarningPeriod ?
-          <InputFormInputRow labelText='Years' type='years'
-            value={incomePeriod.years} expanded={this.props.expanded}
-            onChange={(num)=>this.onChange('years', num)}/>
-          :
-          null
-        }
-      </Animatable.View>
     );
   }
   onChange(propName, num) {
@@ -171,14 +138,14 @@ class EarningPeriod extends Component {
     }
   }
   removePeriod() {
-    /*
-    this._view.bounceOutUp(700)//.transitionTo({opacity:.1})
+
+    //this._view.bounceOutUp(700)//.transitionTo({opacity:.1})
     //  .then(()=>this._view.transitionTo({flex: 0}, 900))
     //    .then(()=>this._view.transitionTo({height: 50}, 200))
     //      .then(()=>this._view.transitionTo({height: 0}, 200))
     //  .then(()=>{this.props.onRemove()});
-      .then(()=>this._view.transition({height: 200}, {height: 0}))
-      */
+    //  .then(()=>this._view.transition({height: 200}, {height: 0}))
+
     //this._view.bounceOutUp(700);
     NativeMethodsMixin.measure.call(this._view, (a,b,c,height) => {
       this._view.transition({height}, {height: 0}, 300);
@@ -195,85 +162,157 @@ EarningPeriod.propTypes = {
   onChange: PropTypes.func.isRequired,
   onRemove: PropTypes.func.isRequired
 };
-
+*/
 // TODO: refactor - components not technically PURE because of this variable!
 var scrollView;
+
+class EarningPeriodListView extends PureComponent {
+  render() {
+    var incomePeriods = this.props.incomePeriods;
+    return (
+      <ScrollView alwaysBounceVertical={false} ref={(c) => scrollView = c} style={{height: 300}} >
+        {incomePeriods.map((incomePeriod, index) => {
+          var allowDelete = incomePeriods.length > 1;
+          var expanded = true;
+          var view;
+
+          return (
+            <Animatable.View style={styles.card} ref={(c)=>view = c}
+              key={JSON.stringify({incomePeriod, index})}>
+
+              <View style={[styles.cardHeader, {flexDirection: 'row'}]}>
+                <Text style={{flex: .4}}>
+                  Earning period {this.props.index===0 && !allowDelete ? '' : index + 1}
+                </Text>
+                {allowDelete ?
+                  <TouchableHighlight underlayColor='#99d9f4' onPress={()=>this.removePeriod(view, incomePeriod)}>
+                      <Text style={{flex: .4, textAlign:'right'}}>Remove</Text>
+                  </TouchableHighlight>
+                  : null
+                }
+              </View>
+
+              <InputFormInputRow labelText='Annual Income' type='dollar'
+                value={incomePeriod.annualIncome} expanded={expanded}
+                onChange={(num)=>this.onChange(incomePeriod, 'annualIncome', num)}/>
+              <InputFormInputRow labelText='Annual Spending' type='dollar'
+                value={incomePeriod.annualSpending} expanded={expanded}
+                onChange={(num)=>this.onChange(incomePeriod, 'annualSpending', num)}/>
+
+              {(index !== incomePeriods.length-1) ?
+                <InputFormInputRow labelText='Years' type='years'
+                  value={incomePeriod.years} expanded={expanded}
+                  onChange={(num)=>this.onChange(incomePeriod, 'years', num)}/>
+                :
+                <TouchableHighlight underlayColor='#99d9f4'
+                    style={[styles.button, {marginBottom: 4, marginHorizontal: 4}]}
+                    onPress={()=> this.addPeriod()}
+                    >
+                    <Text style={styles.buttonText}>Add earning period</Text>
+                </TouchableHighlight>
+              }
+            </Animatable.View>
+          );
+        })}
+
+      </ScrollView>
+    );
+  }
+  onChange(incomePeriod, propName, num) {
+    if(incomePeriod[propName] != num) {
+      var newIncomePeriod = JSON.parse(JSON.stringify(incomePeriod));
+      newIncomePeriod[propName] = num;
+      var index = this.props.scenario.incomePeriods.indexOf(incomePeriod);
+      scenarioStore.setScenario(update(this.props.scenario, {
+        incomePeriods: {
+          $splice: [[index, 1, newIncomePeriod]]
+        }
+      }));
+    }
+  }
+  updateIncomePeriod(incomePeriod, index, prop, num) {
+    scenarioStore.setScenario(update(this.props.scenario, {
+      incomePeriods: {
+        $splice: [[index, 1, earningPeriod]]
+      }
+    }));
+  }
+  removePeriod(periodComponent, incomePeriod) {
+    NativeMethodsMixin.measure.call(periodComponent, (a,b,c,height) => {
+      periodComponent.transition({height}, {height: 0}, 300);
+      setTimeout(()=>{
+        scenarioStore.setScenario(update(this.props.scenario, {
+          incomePeriods: {
+            $splice: [[this.props.scenario.incomePeriods.indexOf(incomePeriod), 1]]
+          }
+        }));
+      }, 300);
+    });
+  }
+  addPeriod() {
+    var incomePeriods = this.props.incomePeriods;
+    var latestPeriod = incomePeriods[incomePeriods.length-1];
+
+    scenarioStore.setScenario(update(this.props.scenario, {
+      incomePeriods: {$splice: [[incomePeriods.length-1, 1,
+        {
+          annualIncome: latestPeriod.annualIncome,
+          annualSpending: latestPeriod.annualSpending,
+          years: 1
+        },
+        {
+          annualIncome: latestPeriod.annualIncome,
+          annualSpending: latestPeriod.annualSpending
+        }]]
+      }
+    }));
+  }
+}
+EarningPeriodListView.propTypes = {
+  incomePeriods: PropTypes.array.isRequired
+};
+
+class MarketAssumptions extends PureComponent {
+  render() {
+    return (
+      <View style={styles.card}>
+        <View style={[styles.cardHeader, styles.roundedTop]}>
+          <Text style={{ backgroundColor: 'transparent' }}>Market Assumptions</Text>
+        </View>
+        {/* TODO - add horizontal scrolling options for: conservative, moderate, aggressive */}
+
+        <InputFormInputRow labelText='Annual Return' type='percent'
+          value={this.props.scenario.annualReturn} expanded={this.props.expanded}
+          onChange={(num)=>this.onChange('annualReturn', num)}/>
+        <InputFormInputRow labelText='Withdrawal Rate' type='percent'
+          value={this.props.scenario.withdrawalRate} expanded={this.props.expanded}
+          onChange={(num)=>this.onChange('withdrawalRate', num)}/>
+      </View>
+    );
+  }
+}
+MarketAssumptions.propTypes = {
+  scenario: PropTypes.object.isRequired,
+  onChange: PropTypes.func.isRequired
+};
 
 class InputForm extends PureComponent {
   render() {
     var scenario = this.props.scenario;
-    var incomePeriods = scenario.incomePeriods;
     return (
       <View style={styles.container}>
         {/* TODO - allow negative values for people in debt starting out */}
         <View style={styles.card}>
-          {this.renderRow('initialPortfolioValue', 'Initial Portfolio Value', 'dollar')}
+          <InputFormInputRow labelText='Initial Portfolio Value' type='dollar'
+            value={this.props.scenario.initialPortfolioValue} expanded={true}
+            onChange={(num)=>this.onChange('initialPortfolioValue', num)}/>
         </View>
 
-        <ScrollView alwaysBounceVertical={false} ref={(c) => scrollView = c} style={{height: 300}} >
-          {incomePeriods.map((incomePeriod, index) =>
-            <EarningPeriod key={JSON.stringify({incomePeriod, index})} expanded={this.props.expanded}
-              earningPeriod={incomePeriod} index={index}
-              allowDelete={incomePeriods.length > 1}
-              finalEarningPeriod={index === incomePeriods.length-1}
-              onChange={(earningPeriod) => {
-                scenarioStore.setScenario(update(scenario, {
-                  incomePeriods: {
-                    $splice: [[index, 1, earningPeriod]]
-                  }
-                }));
-              }}
-              onRemove={() => {
-                scenarioStore.setScenario(update(this.props.scenario, {
-                  incomePeriods: {
-                    $splice: [[index, 1]]
-                  }
-                }));
-              }}
-              />
-            )}
-            <View style={styles.card}>
-              <TouchableHighlight underlayColor='#99d9f4'
-                  style={[styles.button, {marginBottom: 4, marginHorizontal: 4}]}
-                  onPress={()=> {
-                    var latestPeriod = incomePeriods[incomePeriods.length-1];
+        <EarningPeriodListView incomePeriods={scenario.incomePeriods} scenario={scenario}/>
 
-                    let newScenario = update(scenario, {
-                      incomePeriods: {$splice: [[incomePeriods.length-1, 1,
-                        {
-                          annualIncome: latestPeriod.annualIncome,
-                          annualSpending: latestPeriod.annualSpending,
-                          years: 1
-                        },
-                        {
-                          annualIncome: latestPeriod.annualIncome,
-                          annualSpending: latestPeriod.annualSpending
-                        }]]}
-                    });
-                    scenarioStore.setScenario(newScenario);
-                  }}>
-                  <Text style={styles.buttonText}>Add earning period</Text>
-              </TouchableHighlight>
-            </View>
-        </ScrollView>
-
-        <View style={styles.card}>
-          <View style={[styles.cardHeader, styles.roundedTop]}>
-            <Text style={{ backgroundColor: 'transparent' }}>Market Assumptions</Text>
-          </View>
-          {/* TODO - add horizontal scrolling options for: conservative, moderate, aggressive */}
-          {this.renderRow('annualReturn', 'Annual Return', 'percent')}
-          {this.renderRow('withdrawalRate', 'Withdrawal Rate', 'percent')}
-        </View>
+        <MarketAssumptions scenario={scenario} onChange={this.onChange.bind(this)}/>
 
       </View>
-    );
-  }
-  renderRow(propName, label, type) {
-    return (
-      <InputFormInputRow labelText={label} type={type}
-        value={this.props.scenario[propName]} expanded={this.props.expanded}
-        onChange={(num)=>this.onChange(propName, num)}/>
     );
   }
   onChange(propName, num) {
@@ -450,7 +489,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    //alignItems: 'stretch',
     backgroundColor: 'green',
     alignItems: 'stretch'
   },
@@ -495,9 +533,7 @@ const styles = StyleSheet.create({
   },
   scenarioForm: {
     flex: 1,
-    justifyContent: 'center',
-    //alignItems: 'stretch',
-    //backgroundColor: '#0000ff'
+    justifyContent: 'center'
   },
   scenarioFormRow: {
     flex: 1,
@@ -510,7 +546,6 @@ const styles = StyleSheet.create({
   scenarioFormRowLabel: {
     flex: 0.6,
     paddingTop: 13,
-    //textAlign: 'right',
     backgroundColor: 'rgba(52,52,52,0)'
   },
   scenarioFormRowInput: {
@@ -521,10 +556,7 @@ const styles = StyleSheet.create({
   },
   outlook: {
     backgroundColor: 'white',
-    //flex: .7,
-    //flexDirection: 'column',
     padding: 7,
-    //height: 40,
     alignSelf: 'stretch'
   },
   outlookRow: {
