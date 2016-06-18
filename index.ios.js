@@ -123,46 +123,6 @@ InputFormInputRow.propTypes = {
   onChange: PropTypes.func
 };
 
-/*
-class EarningPeriod extends PureComponent {
-  render() {
-    var incomePeriod = this.props.earningPeriod;
-    return (
-    );
-  }
-  onChange(propName, num) {
-    if(this.props.earningPeriod[propName] != num) {
-      var earningPeriod = JSON.parse(JSON.stringify(this.props.earningPeriod));
-      earningPeriod[propName] = num;
-      this.props.onChange(earningPeriod);
-    }
-  }
-  removePeriod() {
-
-    //this._view.bounceOutUp(700)//.transitionTo({opacity:.1})
-    //  .then(()=>this._view.transitionTo({flex: 0}, 900))
-    //    .then(()=>this._view.transitionTo({height: 50}, 200))
-    //      .then(()=>this._view.transitionTo({height: 0}, 200))
-    //  .then(()=>{this.props.onRemove()});
-    //  .then(()=>this._view.transition({height: 200}, {height: 0}))
-
-    //this._view.bounceOutUp(700);
-    NativeMethodsMixin.measure.call(this._view, (a,b,c,height) => {
-      this._view.transition({height}, {height: 0}, 300);
-      setTimeout(()=>this.props.onRemove(), 300);
-    });
-  }
-}
-EarningPeriod.propTypes = {
-  index: PropTypes.number.isRequired,
-  finalEarningPeriod: PropTypes.bool.isRequired,
-  allowDelete: PropTypes.bool.isRequired,
-  earningPeriod: PropTypes.object.isRequired,
-  expanded: PropTypes.bool.isRequired,
-  onChange: PropTypes.func.isRequired,
-  onRemove: PropTypes.func.isRequired
-};
-*/
 // TODO: refactor - components not technically PURE because of this variable!
 var scrollView;
 
@@ -209,10 +169,9 @@ class EarningPeriodListView extends PureComponent {
                   onChange={(num)=>this.onChange(incomePeriod, 'years', num)}/>
                 :
                 <TouchableHighlight underlayColor='#99d9f4'
-                    style={[styles.button, {marginBottom: 4, marginHorizontal: 4}]}
-                    onPress={()=> this.addPeriod()}
-                    >
-                    <Text style={styles.buttonText}>Add earning period</Text>
+                  style={[styles.button, {marginBottom: 4, marginHorizontal: 4}]}
+                  onPress={()=> this.addPeriod()}>
+                  <Text style={styles.buttonText}>Add earning period</Text>
                 </TouchableHighlight>
               }
             </Animatable.View>
@@ -316,7 +275,7 @@ class InputForm extends PureComponent {
 
         <EarningPeriodListView incomePeriods={scenario.incomePeriods} scenario={scenario}/>
 
-        <MarketAssumptions scenario={scenario} onChange={this.onChange.bind(this)}/>
+        <MarketAssumptions scenario={scenario} onChange={this.onChange.bind(this)} expanded={true}/>
 
       </View>
     );
@@ -558,7 +517,7 @@ const styles = StyleSheet.create({
     flex: 0.3,
     fontSize: 13,
     padding: 4,
-    color: 'blue'
+    color: 'black'
   },
   outlook: {
     backgroundColor: 'white',
