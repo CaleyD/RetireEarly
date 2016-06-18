@@ -103,17 +103,6 @@ class InputFormInputRow extends PureComponent {
       );
     }, 50);
   }
-  /*
-  GetPercentPicker() {
-    <PickerIOS style={{width: 300, height: 300}}
-        selectedValue={this.props.value.toString()}
-        >
-      {Array(401).fill(1).map(function(el,i) {
-        var value = i / 4;
-        return <PickerIOS.Item key={value+''} value={value.toString()} label={value.toFixed(2)+'%'} />;
-      })}
-    </PickerIOS>
-  }*/
 }
 InputFormInputRow.propTypes = {
   value: PropTypes.number.isRequired,
