@@ -329,7 +329,8 @@ class Outlook extends PureComponent {
         backButtonTitle: 'back',
         passProps: {
           toggleNavBar: this.props.toggleNavBar,
-          annualBalances: this.props.retirementOutlook.annualBalances
+          annualBalances: this.props.retirementOutlook.annualBalances,
+          scenario: this.props.scenario
         }
       });
   }
@@ -337,25 +338,120 @@ class Outlook extends PureComponent {
 
 class OutlookTablePage extends PureComponent {
   render() {
-    var datasource = ds.cloneWithRows(
-      this.props.annualBalances.map(function(entry, index) {
-        return { portfolioValue: entry, years: index + 1 };
-      })
-    );
+    var listItems = this.props.annualBalances.map(function(entry, index) {
+      return { type: 'year', portfolioValue: entry, year: index + 1 };
+    });
+    incomeIndices = [];
+
+    var currentYearNumber = 0;
+    this.props.scenario.incomePeriods.forEach((period) => {
+      listItems.splice(currentYearNumber, 0, {
+        type: 'income/expenses',
+        annualIncome: period.annualIncome, annualSpending: period.annualSpending
+      });
+      incomeIndices.push(++currentYearNumber);
+      currentYearNumber += (period.years || 0);
+    });
+
+    var datasource = ds.cloneWithRows(listItems);
     return (
-      <ListView enableEmptySections={true}
-        dataSource={datasource}
-        renderRow={(rowData) =>
-            <View style={styles.outlookRow}>
-              <Text>{formatMoney(rowData.portfolioValue)}</Text>
-              <Text style={{textAlign: 'right', flex: .4}}>
-                after {rowData.years} {rowData.years === 1 ? 'year' : 'years'}
-              </Text>
-            </View>
+      <View style={[styles.container, {backgroundColor: 'white'}]}>
+        <ListView enableEmptySections={true}
+          dataSource={datasource}
+          stickyHeaderIndices={incomeIndices}
+          renderHeader={()=>
+            this.renderRow(0,
+              <View>
+                <Text>initial portfolio value: {formatMoney(this.props.scenario.initialPortfolioValue)}</Text>
+              </View>
+            )
           }
-        />
+          renderRow={(rowData) =>
+            rowData.type === 'year' ?
+              <View style={{flexDirection: 'column'}}>
+                {this.renderRow(
+                  rowData.year,
+                  <View>
+                    <Text>{formatMoney(rowData.portfolioValue)}</Text>
+                    {/*
+                    <Text>Change in portfolio: {formatMoney(rowData.portfolioValue)}</Text>
+                    <Text>Change in portfolio: {formatMoney(rowData.portfolioValue)}</Text>
+                    */}
+                  </View>
+                )}
+              </View>
+              :
+              <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+                  backgroundColor: '#dddddd'}}>
+                <View style={{flex: .15, paddingLeft: 15, paddingRight: 15}}></View>
+                <View style={{width: 14, flexDirection: 'column', alignSelf: 'stretch',
+                  alignItems: 'center', justifyContent: 'center',
+                  marginRight: 10}}>
+                  <View style={{backgroundColor: 'green', width: 2, flex: 1, height: 1}}/>
+                </View>
+                <View style={{flex: .8, marginTop: 5, marginBottom: 5}}>
+                  <Text>Income: {formatMoney(rowData.annualIncome)}</Text>
+                  <Text>Expenses: {formatMoney(rowData.annualSpending)}</Text>
+                  <Text>Savings ratio: {
+                      Math.round(100 * (rowData.annualIncome-rowData.annualSpending)/rowData.annualIncome)}
+                    %
+                  </Text>
+                </View>
+              </View>
+            }
+          />
+
+        <View
+          style={{height: 50, backgroundColor: 'pink', flexDirection: 'row', alignItems: 'stretch', justifyContent: 'center'}}>
+          <View style={{flex: 3, backgroundColor: 'green', borderTopWidth: 1, alignItems: 'center', justifyContent: 'center'}}>
+            <Text style={{color: 'white'}}>76.5 years</Text>
+            <Text style={{color: 'white'}}>$1,234,000</Text>
+          </View>
+          <View style={{flex: 2, backgroundColor: 'white', borderTopWidth: 1, alignItems: 'center', justifyContent: 'center' }}>
+            <Text>Widthdrawal rate: 4%</Text>
+            <Text>Inflation 3.4%</Text>
+          </View>
+        </View>
+      </View>
     );
   }
+  renderRow(year, rowContent) {
+    return (
+      <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+        {this.renderYear(year)}
+        {this.renderMarker(year)}
+        <View style={{flex: .8, marginTop: 5, marginBottom: 5}}>
+          {rowContent}
+        </View>
+      </View>
+    );
+  }
+  renderYear(year) {
+    return (
+      <View style={{flex: .15, paddingLeft: 15, paddingRight: 15, paddingTop: 20, paddingBottom: 20}}>
+        <Text style={{color: 'gray'}}>{new Date().getYear() + 1900 + year}</Text>
+      </View>
+    );
+  }
+  renderMarker(year) {
+    return (
+      <View style={{width: 14, flexDirection: 'column', alignSelf: 'stretch',
+        alignItems: 'center', justifyContent: 'center',
+        marginRight: 20}}>
+        <View style={{backgroundColor: year===0 ? 'white': 'green', width: 2, flex: 1, height: 1}} />
+        <View style={{backgroundColor: 'green',
+          borderRadius: 13, borderWidth: 0, borderColor: '#dddddd',
+          height: 26, width: 26, justifyContent: 'center', overflow: 'hidden'}}>
+          <Text allowFontScaling={false} style={{alignSelf: 'center', color: 'white', backgroundColor: 'transparent', flexWrap: 'nowrap'}}>{year}</Text>
+        </View>
+        <View style={{backgroundColor: 'green', width: 2, flex: 1, height: 1}}/>
+      </View>
+    );
+  }
+}
+OutlookTablePage.propTypes = {
+  scenario: PropTypes.object.isRequired,
+  annualBalances: PropTypes.array.isRequired
 }
 
 // Because of limitations of NavigatorIOS - this is acting as the controller view
@@ -402,7 +498,8 @@ class MainScreen extends Component {
           : null
         }
         {this.state.initialized && retirementOutlook ?
-          <Outlook style={{alignSelf:'flex-end'}} navigator={this.props.navigator} retirementOutlook={retirementOutlook}/>
+          <Outlook style={{alignSelf:'flex-end'}} navigator={this.props.navigator}
+            scenario={scenario} retirementOutlook={retirementOutlook}/>
           : null
         }
 
