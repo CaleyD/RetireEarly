@@ -336,7 +336,54 @@ class Outlook extends PureComponent {
   }
 }
 
+class OutlookTablePageRow extends PureComponent {
+
+  render() {
+    var year = this.props.year;
+    var rowContent = this.props.rowContent;
+    return (
+      <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+        {this.renderYear(year)}
+        {this.renderMarker(year)}
+        <View style={{flex: .8, marginTop: 5, marginBottom: 5}}>
+          {rowContent}
+        </View>
+      </View>
+    );
+  }
+  renderYear(year) {
+    return (
+      // TODO: onpress => toggle display between year and age
+      <View style={{flex: .15, paddingLeft: 15, paddingRight: 15, paddingTop: 20, paddingBottom: 20}}>
+        <Text style={{color: 'gray'}}>{new Date().getYear() + 1900 + year}</Text>
+      </View>
+    );
+  }
+  renderMarker(year) {
+    return (
+      <View style={{width: 14, flexDirection: 'column', alignSelf: 'stretch',
+        alignItems: 'center', justifyContent: 'center',
+        marginRight: 20}}>
+        <View style={{backgroundColor: year===0 ? 'white': 'green', width: 2, flex: 1, height: 1}} />
+        <View style={{backgroundColor: 'green',
+          borderRadius: 13, borderWidth: 0, borderColor: '#dddddd',
+          height: 26, width: 26, justifyContent: 'center', overflow: 'hidden'}}>
+          <Text allowFontScaling={false} style={{alignSelf: 'center', color: 'white', backgroundColor: 'transparent', flexWrap: 'nowrap'}}>{year}</Text>
+        </View>
+        <View style={{backgroundColor: 'green', width: 2, flex: 1, height: 1}}/>
+      </View>
+    );
+  }
+}
+
 class OutlookTablePage extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {
+      currentAge: 33,
+      yearDisplay: 'year' // 'age'
+    }
+  }
   render() {
     var listItems = this.props.annualBalances.map(function(entry, index) {
       return { type: 'year', portfolioValue: entry, year: index + 1 };
@@ -360,17 +407,15 @@ class OutlookTablePage extends PureComponent {
           dataSource={datasource}
           stickyHeaderIndices={incomeIndices}
           renderHeader={()=>
-            this.renderRow(0,
+            <OutlookTablePageRow year={0} rowContent={
               <View>
                 <Text>initial portfolio value: {formatMoney(this.props.scenario.initialPortfolioValue)}</Text>
-              </View>
-            )
+              </View>}/>
           }
           renderRow={(rowData) =>
             rowData.type === 'year' ?
               <View style={{flexDirection: 'column'}}>
-                {this.renderRow(
-                  rowData.year,
+                <OutlookTablePageRow year={rowData.year} rowContent={
                   <View>
                     <Text>{formatMoney(rowData.portfolioValue)}</Text>
                     {/*
@@ -378,7 +423,7 @@ class OutlookTablePage extends PureComponent {
                     <Text>Change in portfolio: {formatMoney(rowData.portfolioValue)}</Text>
                     */}
                   </View>
-                )}
+                }/>
               </View>
               :
               <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
@@ -412,39 +457,6 @@ class OutlookTablePage extends PureComponent {
             <Text>Inflation 3.4%</Text>
           </View>
         </View>
-      </View>
-    );
-  }
-  renderRow(year, rowContent) {
-    return (
-      <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
-        {this.renderYear(year)}
-        {this.renderMarker(year)}
-        <View style={{flex: .8, marginTop: 5, marginBottom: 5}}>
-          {rowContent}
-        </View>
-      </View>
-    );
-  }
-  renderYear(year) {
-    return (
-      <View style={{flex: .15, paddingLeft: 15, paddingRight: 15, paddingTop: 20, paddingBottom: 20}}>
-        <Text style={{color: 'gray'}}>{new Date().getYear() + 1900 + year}</Text>
-      </View>
-    );
-  }
-  renderMarker(year) {
-    return (
-      <View style={{width: 14, flexDirection: 'column', alignSelf: 'stretch',
-        alignItems: 'center', justifyContent: 'center',
-        marginRight: 20}}>
-        <View style={{backgroundColor: year===0 ? 'white': 'green', width: 2, flex: 1, height: 1}} />
-        <View style={{backgroundColor: 'green',
-          borderRadius: 13, borderWidth: 0, borderColor: '#dddddd',
-          height: 26, width: 26, justifyContent: 'center', overflow: 'hidden'}}>
-          <Text allowFontScaling={false} style={{alignSelf: 'center', color: 'white', backgroundColor: 'transparent', flexWrap: 'nowrap'}}>{year}</Text>
-        </View>
-        <View style={{backgroundColor: 'green', width: 2, flex: 1, height: 1}}/>
       </View>
     );
   }
