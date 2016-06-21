@@ -337,43 +337,46 @@ class Outlook extends PureComponent {
 }
 
 class OutlookTablePageRow extends PureComponent {
-
   render() {
-    var year = this.props.year;
-    var rowContent = this.props.rowContent;
     return (
       <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
-        {this.renderYear(year)}
-        {this.renderMarker(year)}
+        {this.renderYear()}
+        {this.renderMarker()}
         <View style={{flex: .8, marginTop: 5, marginBottom: 5}}>
-          {rowContent}
+          {this.props.children}
         </View>
       </View>
     );
   }
-  renderYear(year) {
+  renderYear() {
+    var year = new Date().getYear() + 1900 + this.props.year;
     return (
       // TODO: onpress => toggle display between year and age
       <View style={{flex: .15, paddingLeft: 15, paddingRight: 15, paddingTop: 20, paddingBottom: 20}}>
-        <Text style={{color: 'gray'}}>{new Date().getYear() + 1900 + year}</Text>
+        <Text style={{color: 'gray'}}>{year}</Text>
       </View>
     );
   }
-  renderMarker(year) {
+  renderMarker() {
     return (
       <View style={{width: 14, flexDirection: 'column', alignSelf: 'stretch',
         alignItems: 'center', justifyContent: 'center',
         marginRight: 20}}>
-        <View style={{backgroundColor: year===0 ? 'white': 'green', width: 2, flex: 1, height: 1}} />
+        <View style={{backgroundColor: this.props.year===0 ? 'white': 'green', width: 2, flex: 1, height: 1}} />
         <View style={{backgroundColor: 'green',
           borderRadius: 13, borderWidth: 0, borderColor: '#dddddd',
           height: 26, width: 26, justifyContent: 'center', overflow: 'hidden'}}>
-          <Text allowFontScaling={false} style={{alignSelf: 'center', color: 'white', backgroundColor: 'transparent', flexWrap: 'nowrap'}}>{year}</Text>
+          <Text allowFontScaling={false} style={{alignSelf: 'center', color: 'white',
+            backgroundColor: 'transparent', flexWrap: 'nowrap'}}>{this.props.year}</Text>
         </View>
         <View style={{backgroundColor: 'green', width: 2, flex: 1, height: 1}}/>
       </View>
     );
   }
+}
+OutlookTablePageRow.propTypes = {
+  children: PropTypes.element.isRequired,
+  year: PropTypes.number.isRequired
 }
 
 class OutlookTablePage extends PureComponent {
@@ -407,15 +410,16 @@ class OutlookTablePage extends PureComponent {
           dataSource={datasource}
           stickyHeaderIndices={incomeIndices}
           renderHeader={()=>
-            <OutlookTablePageRow year={0} rowContent={
+            <OutlookTablePageRow year={0}>
               <View>
                 <Text>initial portfolio value: {formatMoney(this.props.scenario.initialPortfolioValue)}</Text>
-              </View>}/>
+              </View>
+            </OutlookTablePageRow>
           }
           renderRow={(rowData) =>
             rowData.type === 'year' ?
               <View style={{flexDirection: 'column'}}>
-                <OutlookTablePageRow year={rowData.year} rowContent={
+                <OutlookTablePageRow year={rowData.year}>
                   <View>
                     <Text>{formatMoney(rowData.portfolioValue)}</Text>
                     {/*
@@ -423,7 +427,7 @@ class OutlookTablePage extends PureComponent {
                     <Text>Change in portfolio: {formatMoney(rowData.portfolioValue)}</Text>
                     */}
                   </View>
-                }/>
+                </OutlookTablePageRow>
               </View>
               :
               <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
