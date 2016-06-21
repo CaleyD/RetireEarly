@@ -85,7 +85,7 @@ class InputFormInputRow extends PureComponent {
   }
   render() {
     return (
-      <View style={[styles.scenarioFormRow, this.props.expanded ? {height: 44} : {}]}>
+      <View style={[styles.scenarioFormRow, {height: 44}]}>
         <Text style={styles.scenarioFormRowLabel}>{this.props.labelText}</Text>
         {(this.props.type === 'dollar' ?
           <NumberInput value={parseInt(this.state.value)}
@@ -142,7 +142,6 @@ InputFormInputRow.propTypes = {
   value: PropTypes.number.isRequired,
   labelText: PropTypes.string.isRequired,
   type: PropTypes.oneOf(['dollar', 'percent', 'years']),
-  expanded: PropTypes.bool,
   onChange: PropTypes.func
 };
 
@@ -160,7 +159,6 @@ class EarningPeriodListView extends PureComponent {
       <ScrollView alwaysBounceVertical={false} ref={(c) => scrollView = c} style={{height: 300}} >
         {incomePeriods.map((incomePeriod, index) => {
           var allowDelete = incomePeriods.length > 1;
-          var expanded = true;
           var view;
 
           return (
@@ -180,15 +178,15 @@ class EarningPeriodListView extends PureComponent {
               </View>
 
               <InputFormInputRow labelText='Annual Income' type='dollar'
-                value={incomePeriod.annualIncome} expanded={expanded}
+                value={incomePeriod.annualIncome}
                 onChange={(num)=>this.onChange(incomePeriod, 'annualIncome', num)}/>
               <InputFormInputRow labelText='Annual Spending' type='dollar'
-                value={incomePeriod.annualSpending} expanded={expanded}
+                value={incomePeriod.annualSpending}
                 onChange={(num)=>this.onChange(incomePeriod, 'annualSpending', num)}/>
 
               {(index !== incomePeriods.length-1) ?
                 <InputFormInputRow labelText='Years' type='years'
-                  value={incomePeriod.years} expanded={expanded}
+                  value={incomePeriod.years}
                   onChange={(num)=>this.onChange(incomePeriod, 'years', num)}/>
                 :
                 <TouchableHighlight underlayColor='#99d9f4'
@@ -270,10 +268,10 @@ class MarketAssumptions extends PureComponent {
         {/* TODO - add horizontal scrolling options for: conservative, moderate, aggressive */}
 
         <InputFormInputRow labelText='Annual Return' type='percent'
-          value={this.props.scenario.annualReturn} expanded={this.props.expanded}
+          value={this.props.scenario.annualReturn}
           onChange={(num)=>this.onChange('annualReturn', num)}/>
         <InputFormInputRow labelText='Withdrawal Rate' type='percent'
-          value={this.props.scenario.withdrawalRate} expanded={this.props.expanded}
+          value={this.props.scenario.withdrawalRate}
           onChange={(num)=>this.onChange('withdrawalRate', num)}/>
       </View>
     );
@@ -292,13 +290,13 @@ class InputForm extends PureComponent {
         {/* TODO - allow negative values for people in debt starting out */}
         <View style={styles.card}>
           <InputFormInputRow labelText='Initial Portfolio Value' type='dollar'
-            value={this.props.scenario.initialPortfolioValue} expanded={true}
+            value={this.props.scenario.initialPortfolioValue}
             onChange={(num)=>this.onChange('initialPortfolioValue', num)}/>
         </View>
 
         <EarningPeriodListView incomePeriods={scenario.incomePeriods} scenario={scenario}/>
 
-        <MarketAssumptions scenario={scenario} onChange={this.onChange.bind(this)} expanded={true}/>
+        <MarketAssumptions scenario={scenario} onChange={this.onChange.bind(this)}/>
 
       </View>
     );
@@ -310,8 +308,7 @@ class InputForm extends PureComponent {
   }
 }
 InputForm.propTypes = {
-  scenario: PropTypes.object.isRequired,
-  expanded: PropTypes.bool.isRequired
+  scenario: PropTypes.object.isRequired
 };
 
 class Intro extends PureComponent {
@@ -518,8 +515,7 @@ class MainScreen extends Component {
           annualIncome: 100000,
           annualSpending: 45000
         }]
-      },
-      inputsExpanded: true
+      }
     };
     scenarioStore.getScenario((err, scenario) => {
       this.setState({ scenario: scenario, initialized: true });
@@ -544,7 +540,7 @@ class MainScreen extends Component {
         <Intro/>
 
         {this.state.initialized ?
-          <InputForm scenario={scenario} expanded={true}/>
+          <InputForm scenario={scenario}/>
           : null
         }
         {this.state.initialized && retirementOutlook ?
