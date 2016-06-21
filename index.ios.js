@@ -32,6 +32,52 @@ class PureComponent extends Component {
   }
 }
 
+class NumberInput extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {value: props.value || 0};
+  }
+  render() {
+    var val = this.state.focused || !this.props.getFormattedText?
+      this.state.value.toString() :
+      this.props.getFormattedText(this.state.value);
+    return (
+      <TextInput style={styles.scenarioFormRowInput}
+          maxLength={9} autoCorrect={false} keyboardType='number-pad'
+          value={val}
+          onChangeText={this.onChange.bind(this)}
+          onBlur={() => this.setState({focused: false})}
+          ref={(c) => this._input = c }
+          onFocus={this.inputFocused.bind(this)}
+          />
+    );
+  }
+  onChange(text) {
+    var num = parseInt(text) || 0;
+    this.setState({value: num});
+    this.props.onChange(num);
+  }
+  inputFocused() {
+    this.setState({focused: true})
+    if(this.props.scrollview) {
+      setTimeout(() => {
+        let scrollResponder = this.props.scrollView.getScrollResponder();
+        scrollResponder.scrollResponderScrollNativeHandleToKeyboard(
+          ReactNative.findNodeHandle(this._input),
+          110, //additionalOffset
+          true
+        );
+      }, 50);
+    }
+  }
+}
+NumberInput.propTypes = {
+  value: PropTypes.number.isRequired,
+  onChange: PropTypes.func.isRequired,
+  scrollview: PropTypes.object,
+  getFormattedText: PropTypes.func
+}
+
 class InputFormInputRow extends PureComponent {
   constructor(props) {
     super(props);
@@ -41,51 +87,39 @@ class InputFormInputRow extends PureComponent {
     return (
       <View style={[styles.scenarioFormRow, this.props.expanded ? {height: 44} : {}]}>
         <Text style={styles.scenarioFormRowLabel}>{this.props.labelText}</Text>
-        {this.props.expanded ?
-          (this.props.type === 'dollar' ?
-            <TextInput style={styles.scenarioFormRowInput}
-                maxLength={9} autoCorrect={false} keyboardType='number-pad'
-                value={'$' + this.state.value.toString()}
-                onChangeText={this.onChangeDollarText.bind(this)}
-                ref={(c) => this._input = c }
-                onFocus={this.inputFocused.bind(this)}
-                />
-              : this.props.type === 'percent' ?
-            <TextInput style={styles.scenarioFormRowInput}
-                maxLength={7} autoCorrect={false} keyboardType='decimal-pad'
-                value={this.formatPercent(this.state.value)}
-                onChangeText={this.onChangePercentText.bind(this)}
-                ref={(c) => this._input = c }
-                onFocus={this.inputFocused.bind(this)}
-                />
-              :
-            <TextInput style={styles.scenarioFormRowInput}
-                maxLength={2} autoCorrect={false} keyboardType='number-pad'
-                value={this.state.value.toString()}
-                onChangeText={this.onChangeDollarText.bind(this)}
-                ref={(c) => this._input = c }
-                onFocus={this.inputFocused.bind(this)}
-                />
-          ) : (
-            <Text style={[styles.scenarioFormRowLabel, { textAlign: 'left', paddingLeft: 4 }]}>
-              {this.props.type === 'dollar' ?
-                formatMoney(this.state.value) :
-                this.formatPercent(this.state.value)
-              }
-            </Text>
-          )
+        {(this.props.type === 'dollar' ?
+          <NumberInput value={parseInt(this.state.value)}
+              onChange={(num)=>{
+                this.setState({value: num});
+                this.props.onChange(num);
+              }}
+              scrollview={scrollView}
+              getFormattedText={(num)=>formatMoney(num)}
+              />
+            : this.props.type === 'percent' ?
+          <NumberInput value={parseInt(this.state.value)}
+              onChange={(num)=>{
+                this.setState({value: num});
+                this.props.onChange(num);
+              }}
+              scrollview={scrollView}
+              getFormattedText={(num)=>this.formatPercent(num)}
+              />
+            :
+          <NumberInput value={parseInt(this.state.value)}
+              onChange={(num)=>{
+                this.setState({value: num});
+                this.props.onChange(num);
+              }}
+              scrollview={scrollView}
+              />
+        )
         }
       </View>
     );
   }
   formatPercent(value) {
     return (value * 100).toFixed(2) + '%'
-  }
-  onChangeDollarText(text) {
-    if(text[0] === '$') { text = text.substr(1); }
-    var num = parseInt(text) || 0;
-    this.setState({value: num});
-    this.props.onChange(num);
   }
   onChangePercentText(text) {
     if(text.indexOf('%') >= 0) { text = text.replace('%', ''); }
