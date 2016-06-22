@@ -11,7 +11,8 @@ import ReactNative, {
   StatusBar,
   ListView,
   Picker,
-  Switch
+  Switch,
+  LayoutAnimation
 } from 'react-native';
 import NativeMethodsMixin from 'NativeMethodsMixin';
 import PureRenderMixin from 'react-addons-pure-render-mixin';
@@ -135,55 +136,27 @@ class EarningPeriodListView extends PureComponent {
     );
   }
   onChange(incomePeriod, propName, num) {
-    if(incomePeriod[propName] != num) {
-      var newIncomePeriod = JSON.parse(JSON.stringify(incomePeriod));
-      newIncomePeriod[propName] = num;
-      var index = this.props.scenario.incomePeriods.indexOf(incomePeriod);
-      scenarioStore.setScenario(update(this.props.scenario, {
-        incomePeriods: {
-          $splice: [[index, 1, newIncomePeriod]]
-        }
-      }));
-    }
-  }
-  updateIncomePeriod(incomePeriod, index, prop, num) {
-    scenarioStore.setScenario(update(this.props.scenario, {
-      incomePeriods: {
-        $splice: [[index, 1, earningPeriod]]
-      }
-    }));
+    var updates = {};
+    updates[propName] = num;
+    scenarioStore.updateIncomePeriod(incomePeriod, updates);
   }
   removePeriod(periodComponent, incomePeriod) {
     NativeMethodsMixin.measure.call(periodComponent, (a,b,c,height) => {
       periodComponent.transition({height}, {height: 0}, 300);
       setTimeout(()=>{
-        scenarioStore.setScenario(update(this.props.scenario, {
-          incomePeriods: {
-            $splice: [[this.props.scenario.incomePeriods.indexOf(incomePeriod), 1]]
-          }
-        }));
+        scenarioStore.removeIncomePeriod(incomePeriod);
       }, 300);
     });
 
     this._renderID++; // so deleted/animated-out rows don't get reused
   }
   addPeriod() {
-    var incomePeriods = this.props.incomePeriods;
-    var latestPeriod = incomePeriods[incomePeriods.length-1];
+    var latestPeriod = this.props.incomePeriods[this.props.incomePeriods.length-1];
 
-    scenarioStore.setScenario(update(this.props.scenario, {
-      incomePeriods: {$splice: [[incomePeriods.length-1, 1,
-        {
-          annualIncome: latestPeriod.annualIncome,
-          annualSpending: latestPeriod.annualSpending,
-          years: 1
-        },
-        {
-          annualIncome: latestPeriod.annualIncome,
-          annualSpending: latestPeriod.annualSpending
-        }]]
-      }
-    }));
+    scenarioStore.appendIncomePeriod(1, {
+      annualIncome: latestPeriod.annualIncome,
+      annualSpending: latestPeriod.annualSpending
+    });
   }
 }
 EarningPeriodListView.propTypes = {
@@ -201,17 +174,16 @@ class MarketAssumptions extends PureComponent {
 
         <InputFormInputRow labelText='Annual Return' type='percent'
           value={this.props.scenario.annualReturn}
-          onChange={(num)=>this.onChange('annualReturn', num)}/>
+          onChange={(num)=>scenarioStore.setAnnualReturn(num)}/>
         <InputFormInputRow labelText='Withdrawal Rate' type='percent'
           value={this.props.scenario.withdrawalRate}
-          onChange={(num)=>this.onChange('withdrawalRate', num)}/>
+          onChange={(num)=>scenarioStore.setWithdrawalRate(num)}/>
       </View>
     );
   }
 }
 MarketAssumptions.propTypes = {
-  scenario: PropTypes.object.isRequired,
-  onChange: PropTypes.func.isRequired
+  scenario: PropTypes.object.isRequired
 };
 
 class InputForm extends PureComponent {
@@ -223,20 +195,15 @@ class InputForm extends PureComponent {
         <View style={styles.card}>
           <InputFormInputRow labelText='Initial Portfolio Value' type='dollar'
             value={this.props.scenario.initialPortfolioValue}
-            onChange={(num)=>this.onChange('initialPortfolioValue', num)}/>
+            onChange={(num)=>scenarioStore.setInitialPortfolioValue(num)}/>
         </View>
 
         <EarningPeriodListView incomePeriods={scenario.incomePeriods} scenario={scenario}/>
 
-        <MarketAssumptions scenario={scenario} onChange={this.onChange.bind(this)}/>
+        <MarketAssumptions scenario={scenario}/>
 
       </View>
     );
-  }
-  onChange(propName, num) {
-    var command = {};
-    command[propName] = { $set: num };
-    scenarioStore.setScenario(update(this.props.scenario, command));
   }
 }
 InputForm.propTypes = {
@@ -310,6 +277,9 @@ class OutlookTablePageRow extends PureComponent {
         </View>
       </View>
     );
+  }
+  componentWillMount() {
+    LayoutAnimation.spring();
   }
   renderYear() {
     var year = new Date().getYear() + 1900 + this.props.year;
