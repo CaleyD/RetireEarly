@@ -3,7 +3,6 @@ import ReactNative, {
   AppRegistry,
   StyleSheet,
   Text,
-  TextInput,
   TouchableHighlight,
   TouchableOpacity,
   View,
@@ -17,6 +16,7 @@ import ReactNative, {
 import NativeMethodsMixin from 'NativeMethodsMixin';
 import PureRenderMixin from 'react-addons-pure-render-mixin';
 import * as Animatable from 'react-native-animatable';
+import NumberInput from './lib/react-native-numberinput'
 var update = require('react-addons-update');
 
 var scenarioStore = require('./lib/scenarioStore');
@@ -32,110 +32,42 @@ class PureComponent extends Component {
   }
 }
 
-class NumberInput extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {value: props.value || 0};
-  }
-  render() {
-    var val = this.state.focused || !this.props.getFormattedText?
-      this.state.value.toString() :
-      this.props.getFormattedText(this.state.value);
-    return (
-      <TextInput style={styles.scenarioFormRowInput}
-          maxLength={9} autoCorrect={false} keyboardType='number-pad'
-          value={val}
-          onChangeText={this.onChange.bind(this)}
-          onBlur={() => this.setState({focused: false})}
-          ref={(c) => this._input = c }
-          onFocus={this.inputFocused.bind(this)}
-          />
-    );
-  }
-  onChange(text) {
-    var num = parseInt(text) || 0;
-    this.setState({value: num});
-    this.props.onChange(num);
-  }
-  inputFocused() {
-    this.setState({focused: true})
-    if(this.props.scrollview) {
-      setTimeout(() => {
-        let scrollResponder = this.props.scrollView.getScrollResponder();
-        scrollResponder.scrollResponderScrollNativeHandleToKeyboard(
-          ReactNative.findNodeHandle(this._input),
-          110, //additionalOffset
-          true
-        );
-      }, 50);
-    }
-  }
-}
-NumberInput.propTypes = {
-  value: PropTypes.number.isRequired,
-  onChange: PropTypes.func.isRequired,
-  scrollview: PropTypes.object,
-  getFormattedText: PropTypes.func
-}
-
 class InputFormInputRow extends PureComponent {
   constructor(props) {
     super(props);
-    this.state = {value: (props.value || '').toString()};
+    this.state = {value: parseInt(props.value || 0)};
   }
   render() {
     return (
       <View style={[styles.scenarioFormRow, {height: 44}]}>
         <Text style={styles.scenarioFormRowLabel}>{this.props.labelText}</Text>
         {(this.props.type === 'dollar' ?
-          <NumberInput value={parseInt(this.state.value)}
-              onChange={(num)=>{
-                this.setState({value: num});
-                this.props.onChange(num);
-              }}
+          <NumberInput value={this.state.value} inputStyle={styles.scenarioFormRowInput}
+              onChange={(num)=>this.onChange(num)}
               scrollview={scrollView}
               getFormattedText={(num)=>formatMoney(num)}
               />
             : this.props.type === 'percent' ?
-          <NumberInput value={parseInt(this.state.value)}
-              onChange={(num)=>{
-                this.setState({value: num});
-                this.props.onChange(num);
-              }}
+          <NumberInput value={this.state.value} inputStyle={styles.scenarioFormRowInput}
+              onChange={(num)=>this.onChange(num)}
               scrollview={scrollView}
               getFormattedText={(num)=>this.formatPercent(num)}
               />
             :
-          <NumberInput value={parseInt(this.state.value)}
-              onChange={(num)=>{
-                this.setState({value: num});
-                this.props.onChange(num);
-              }}
+          <NumberInput value={this.state.value} inputStyle={styles.scenarioFormRowInput}
+              onChange={(num)=>this.onChange(num)}
               scrollview={scrollView}
               />
-        )
-        }
+        )}
       </View>
     );
   }
   formatPercent(value) {
     return (value * 100).toFixed(2) + '%'
   }
-  onChangePercentText(text) {
-    if(text.indexOf('%') >= 0) { text = text.replace('%', ''); }
-    var num = Math.min(100, parseFloat(text));
-    this.setState({value: num / 100});
-    this.props.onChange(num / 100);
-  }
-  inputFocused(refName) {
-    setTimeout(() => {
-      let scrollResponder = scrollView.getScrollResponder();
-      scrollResponder.scrollResponderScrollNativeHandleToKeyboard(
-        ReactNative.findNodeHandle(this._input),
-        110, //additionalOffset
-        true
-      );
-    }, 50);
+  onChange(num) {
+    this.setState({value: num});
+    this.props.onChange(num);
   }
 }
 InputFormInputRow.propTypes = {
