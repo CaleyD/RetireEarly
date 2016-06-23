@@ -275,9 +275,6 @@ class OutlookTablePageRow extends PureComponent {
       </View>
     );
   }
-  componentWillMount() {
-    LayoutAnimation.spring();
-  }
   renderYear() {
     var year = new Date().getYear() + 1900 + this.props.year;
     return (
@@ -289,7 +286,7 @@ class OutlookTablePageRow extends PureComponent {
   }
   renderMarker() {
     return (
-      <View style={{width: 14, flexDirection: 'column', alignSelf: 'stretch',
+      <View style={{width: 26, flexDirection: 'column', alignSelf: 'stretch',
         alignItems: 'center', justifyContent: 'center',
         marginRight: 20}}>
         <View style={{backgroundColor: this.props.year===0 ? 'white': 'green', width: 2, flex: 1, height: 1}} />
@@ -315,7 +312,7 @@ class OutlookTablePageIncomeExpenseRow extends PureComponent {
     this.state = {selectedRow: false};
   }
   componentWillUpdate() {
-    LayoutAnimation.easeInEaseOut();
+    LayoutAnimation.spring();
   }
   render() {
     rowData = this.props.rowData;
@@ -325,7 +322,7 @@ class OutlookTablePageIncomeExpenseRow extends PureComponent {
           this.setState({selectedRow:!this.state.selectedRow})
         }}>
         <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-            backgroundColor: rowSelected ? 'blue' : '#dddddd'}}>
+            backgroundColor: rowSelected ? 'blue' : '#dddddd', overflow: 'hidden'}}>
           <View style={{flex: .15, paddingLeft: 15, paddingRight: 15}}></View>
           <View style={{width: 14, flexDirection: 'column', alignSelf: 'stretch',
             alignItems: 'center', justifyContent: 'center',
