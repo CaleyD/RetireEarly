@@ -13,18 +13,21 @@ import ReactNative, {
   Picker,
   Switch,
   LayoutAnimation,
-  ProgressViewIOS
+  ProgressViewIOS,
+  Slider
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import NativeMethodsMixin from 'NativeMethodsMixin';
 import PureRenderMixin from 'react-addons-pure-render-mixin';
 import * as Animatable from 'react-native-animatable';
 import NumberInput from './lib/react-native-numberinput'
+import QuickDollarInputSidebar from './lib/quick-dollar-input-sidebar';
 var update = require('react-addons-update');
 
 var scenarioStore = require('./lib/scenarioStore');
 var calc = require('./lib/calculator.js');
-var formatMoney = require('./lib/formatMoney.js');
+var formatMoney = require('./lib/formatMoney.js').formatMoney;
+var formatMoneyCompact = require('./lib/formatMoney.js').formatMoneyCompact;
 
 var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 
@@ -324,20 +327,20 @@ class OutlookTablePageIncomeExpenseRow extends PureComponent {
         }}>
         <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
             backgroundColor: rowSelected ? 'blue' : '#dddddd', overflow: 'hidden'}}>
-          <View style={{flex: .15, paddingLeft: 15, paddingRight: 15}}></View>
-          <View style={{width: 14, flexDirection: 'column', alignSelf: 'stretch',
-            alignItems: 'center', justifyContent: 'center',
-            marginRight: 10}}>
-            <View style={{backgroundColor: 'green', width: 2, flex: 1, height: 1}}/>
-          </View>
           <View style={{flexDirection: 'row', flex: .8, marginTop: 5, marginBottom: 5}}>
             <View style={{flexDirection: 'column', flex: 1}}>
               <Text>Income</Text>
-              <Text>{formatMoney(rowData.annualIncome)}</Text>
+              <NumberInput value={rowData.annualIncome} inputStyle={styles.scenarioFormRowInput}
+                  onChange={(num)=>scenarioStore.updateIncomePeriod(rowData.period, {annualIncome: num})}
+                  getFormattedText={formatMoney}
+                  />
             </View>
             <View style={{flexDirection: 'column', flex: 1}}>
               <Text>Expenses</Text>
-              <Text>{formatMoney(rowData.annualSpending)}</Text>
+              <NumberInput value={rowData.annualSpending} inputStyle={styles.scenarioFormRowInput}
+                  onChange={(num)=>scenarioStore.updateIncomePeriod(rowData.period, {annualSpending: num})}
+                  getFormattedText={formatMoney}
+                  />
             </View>
             <View style={{flexDirection: 'column', flex: 1}}>
               <Text>Savings ratio</Text>
@@ -405,66 +408,75 @@ class OutlookTablePage extends PureComponent {
 
     var datasource = ds.cloneWithRows(listItems);
     return (
-      <View style={[styles.container, {backgroundColor: 'white'}]}>
-        <ListView enableEmptySections={true}
-          dataSource={datasource}
-          stickyHeaderIndices={incomeIndices}
-          renderHeader={()=>
-            <OutlookTablePageRow year={0}>
-              <View style={{flexDirection: 'row'}}>
-                <Text>initial portfolio value</Text>
-                <NumberInput
-                  inputStyle={[styles.scenarioFormRowInput, {flex: 1}]}
-                  value={scenario.initialPortfolioValue}
-                  getFormattedText={formatMoney}
-                  onChange={(num)=>scenarioStore.setInitialPortfolioValue(num)}
-                  />
-              </View>
-            </OutlookTablePageRow>
-          }
-          renderRow={(rowData) =>
-            rowData.type === 'year' ?
-              <View>
-                {this.state.selectedRow===rowData.year ?
-                  <Text>THIS IS A TEST</Text>
-                  : null
-                }
-                <OutlookTablePageRow year={rowData.year}>
-                  <TouchableHighlight onPress={()=>this.setState({selectedRow: rowData.year})}>
-                    <View style={{flexDirection: 'row'}}>
-                      <ProgressViewIOS
-                        style={{marginRight: 10, flex: 1, alignSelf: 'center'}}
-                        progress={rowData.portfolioValue / retirementOutlook.retirementPortfolioValue}>
-                      </ProgressViewIOS>
-                      <Text style={{marginRight: 10}}>{formatMoneyCompact(rowData.portfolioValue)}</Text>
-                      {/*
-                      <Text>Change in portfolio: {formatMoney(rowData.portfolioValue)}</Text>
-                      */}
-                    </View>
-                  </TouchableHighlight>
-                </OutlookTablePageRow>
-              </View>
-              :
-              <OutlookTablePageIncomeExpenseRow rowData={rowData}
-                allowDelete={scenario.incomePeriods[0] !== rowData.period}/>
+      <View style={{flexDirection: 'row', alignItems: 'stretch', flex: 1}}>
+        <View style={[styles.container, {backgroundColor: 'white', flex: .8}]}>
+          <ListView
+            enableEmptySections={true}
+            dataSource={datasource}
+            stickyHeaderIndices={incomeIndices}
+            renderHeader={()=>
+              <OutlookTablePageRow year={0}>
+                <View style={{flexDirection: 'row'}}>
+                  <Text>initial portfolio value</Text>
+                  <NumberInput
+                    inputStyle={[styles.scenarioFormRowInput, {flex: 1}]}
+                    value={scenario.initialPortfolioValue}
+                    getFormattedText={formatMoney}
+                    onChange={(num)=>scenarioStore.setInitialPortfolioValue(num)}
+                    />
+                </View>
+              </OutlookTablePageRow>
             }
-          />
+            renderRow={(rowData) =>
+              rowData.type === 'year' ?
+                <View>
+                  {this.state.selectedRow===rowData.year ?
+                    <View>
+                      <Text>Modify income/expenses</Text>
+                    </View>
+                    : null
+                  }
+                  <OutlookTablePageRow year={rowData.year}>
+                    <TouchableHighlight onPress={()=>this.setState({selectedRow: rowData.year===this.state.selectedRow ? null : rowData.year})}>
+                      <View style={{flexDirection: 'row'}}>
+                        <ProgressViewIOS
+                          style={{marginRight: 10, flex: 1, alignSelf: 'center'}}
+                          progress={rowData.portfolioValue / retirementOutlook.retirementPortfolioValue}>
+                        </ProgressViewIOS>
+                        <Text style={{marginRight: 10}}>{formatMoneyCompact(rowData.portfolioValue)}</Text>
+                        {/*
+                        <Text>Change in portfolio: {formatMoney(rowData.portfolioValue)}</Text>
+                        */}
+                      </View>
+                    </TouchableHighlight>
+                  </OutlookTablePageRow>
+                </View>
+                :
+                <OutlookTablePageIncomeExpenseRow rowData={rowData}
+                  allowDelete={scenario.incomePeriods[0] !== rowData.period}/>
+              }
+            />
 
-        <View
-          style={{height: 50, backgroundColor: 'pink', flexDirection: 'row', alignItems: 'stretch', justifyContent: 'center'}}>
-          <View style={{flex: 3, backgroundColor: 'green', borderTopWidth: 1, alignItems: 'center', justifyContent: 'center'}}>
-            <Text style={{color: 'white'}}>{Math.round(10*retirementOutlook.yearsToRetirement)/10} years</Text>
-            <Text style={{color: 'white'}}>{formatMoney(retirementOutlook.retirementPortfolioValue)}</Text>
-          </View>
-          <View style={{
-              position: 'absolute', right: 30, bottom: 30,
-              flex: 2, backgroundColor: 'white', borderTopWidth: 1,
-              alignItems: 'center', justifyContent: 'center'
-            }}>
-            <Text>Widthdrawal rate: 4%</Text>
-            <Text>Inflation 3.4%</Text>
+          <View
+            style={{height: 50, backgroundColor: 'pink', flexDirection: 'row', alignItems: 'stretch', justifyContent: 'center'}}>
+            <View style={{flex: 3, backgroundColor: 'green', borderTopWidth: 1, alignItems: 'center', justifyContent: 'center'}}>
+              <Text style={{color: 'white'}}>{Math.round(10*retirementOutlook.yearsToRetirement)/10} years</Text>
+              <Text style={{color: 'white'}}>{formatMoney(retirementOutlook.retirementPortfolioValue)}</Text>
+            </View>
+            <View style={{
+                position: 'absolute', right: 30, bottom: 30,
+                flex: 2, backgroundColor: 'white', borderTopWidth: 1,
+                alignItems: 'center', justifyContent: 'center'
+              }}>
+              <Text>Widthdrawal rate: 4%</Text>
+              <Text>Inflation 3.4%</Text>
+            </View>
           </View>
         </View>
+        {this.state.selectedRow ?
+          <QuickDollarInputSidebar />
+          : null
+        }
       </View>
     );
   }
@@ -654,24 +666,4 @@ const styles = StyleSheet.create({
   }
 });
 
-function formatMoneyCompact(num) {
-  if(num < 1000) {
-    return formatMoney(num);
-  } else if(num < 10000) {
-    return '$' + (Math.round(num/100)/10) + 'k';
-  } else if(num < 1000000) {
-    return '$' + (Math.round(num/1000)) + 'k';
-  } else if(num < 10000000){
-    return '$' + (Math.round(num/10000)/100) + 'm';
-  } else {
-    return '$' + (Math.round(num/100000)/10) + 'm';
-  }
-}
-/*
-friendlyDollarAmounts = [
-  1-20k (by 1k) = 100
-  105-200k (by 5k) = 20
-  210-
-]
-*/
 AppRegistry.registerComponent('EarlyRetireCalc', () => App);
