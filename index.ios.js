@@ -257,7 +257,6 @@ class Outlook extends PureComponent {
         backButtonTitle: 'back',
         passProps: {
           toggleNavBar: this.props.toggleNavBar,
-          annualBalances: this.props.retirementOutlook.annualBalances,
           scenario: this.props.scenario
         }
       });
@@ -315,11 +314,20 @@ class OutlookTablePage extends PureComponent {
     super(props);
     this.state = {
       currentAge: 33,
-      yearDisplay: 'year' // 'age'
+      yearDisplay: 'year', // 'age'
+      scenario: this.props.scenario
     }
+    this.onScenarioChangedBound = (scenario) => { this.setState({scenario})};
+    scenarioStore.addListener('change', this.onScenarioChangedBound);
+  }
+
+  componentWillUnmount() {
+    scenarioStore.removeListener('change', this.onScenarioChangedBound);
   }
   render() {
-    var listItems = this.props.annualBalances.map(function(entry, index) {
+    var retirementOutlook = calc.calculate(this.state.scenario);
+    var annualBalances = retirementOutlook.annualBalances;
+    var listItems = annualBalances.map(function(entry, index) {
       return { type: 'year', portfolioValue: entry, year: index + 1 };
     });
     incomeIndices = [];
@@ -390,7 +398,7 @@ class OutlookTablePage extends PureComponent {
         <View
           style={{height: 50, backgroundColor: 'pink', flexDirection: 'row', alignItems: 'stretch', justifyContent: 'center'}}>
           <View style={{flex: 3, backgroundColor: 'green', borderTopWidth: 1, alignItems: 'center', justifyContent: 'center'}}>
-            <Text style={{color: 'white'}}>76.5 years</Text>
+            <Text style={{color: 'white'}}>{Math.round(10*retirementOutlook.yearsToRetirement)/10} years</Text>
             <Text style={{color: 'white'}}>$1,234,000</Text>
           </View>
           <View style={{flex: 2, backgroundColor: 'white', borderTopWidth: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -403,8 +411,7 @@ class OutlookTablePage extends PureComponent {
   }
 }
 OutlookTablePage.propTypes = {
-  scenario: PropTypes.object.isRequired,
-  annualBalances: PropTypes.array.isRequired
+  scenario: PropTypes.object.isRequired
 }
 
 // Because of limitations of NavigatorIOS - this is acting as the controller view
