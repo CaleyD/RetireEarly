@@ -419,7 +419,8 @@ class OutlookTablePage extends PureComponent {
                 </View>
               </OutlookTablePageRow>
               :
-              <OutlookTablePageIncomeExpenseRow rowData={rowData} allowDelete={scenario.incomePeriods[0] !== rowData.period}/>
+              <OutlookTablePageIncomeExpenseRow rowData={rowData}
+                allowDelete={scenario.incomePeriods[0] !== rowData.period}/>
             }
           />
 
