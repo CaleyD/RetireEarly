@@ -12,7 +12,8 @@ import ReactNative, {
   ListView,
   Picker,
   Switch,
-  LayoutAnimation
+  LayoutAnimation,
+  ProgressViewIOS
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import NativeMethodsMixin from 'NativeMethodsMixin';
@@ -329,13 +330,22 @@ class OutlookTablePageIncomeExpenseRow extends PureComponent {
             marginRight: 10}}>
             <View style={{backgroundColor: 'green', width: 2, flex: 1, height: 1}}/>
           </View>
-          <View style={{flex: .8, marginTop: 5, marginBottom: 5}}>
-            <Text>Income: {formatMoney(rowData.annualIncome)}</Text>
-            <Text>Expenses: {formatMoney(rowData.annualSpending)}</Text>
-            <Text>Savings ratio: {
-                Math.round(100 * (rowData.annualIncome-rowData.annualSpending)/rowData.annualIncome)}
-              %
-            </Text>
+          <View style={{flexDirection: 'row', flex: .8, marginTop: 5, marginBottom: 5}}>
+            <View style={{flexDirection: 'column', flex: 1}}>
+              <Text>Income</Text>
+              <Text>{formatMoney(rowData.annualIncome)}</Text>
+            </View>
+            <View style={{flexDirection: 'column', flex: 1}}>
+              <Text>Expenses</Text>
+              <Text>{formatMoney(rowData.annualSpending)}</Text>
+            </View>
+            <View style={{flexDirection: 'column', flex: 1}}>
+              <Text>Savings ratio</Text>
+              <Text>{
+                  Math.round(100 * (rowData.annualIncome-rowData.annualSpending)/rowData.annualIncome)}
+                %
+              </Text>
+            </View>
           </View>
           {rowSelected ?
             <View style={{height: 300}}>
@@ -415,8 +425,12 @@ class OutlookTablePage extends PureComponent {
           renderRow={(rowData) =>
             rowData.type === 'year' ?
               <OutlookTablePageRow year={rowData.year}>
-                <View>
-                  <Text>{formatMoney(rowData.portfolioValue)}</Text>
+                <View style={{flexDirection: 'row'}}>
+                  <ProgressViewIOS
+                    style={{marginRight: 10, height: 20, flex: 1}}
+                    progress={rowData.portfolioValue / retirementOutlook.retirementPortfolioValue}>
+                  </ProgressViewIOS>
+                  <Text>{formatMoneyCompact(rowData.portfolioValue)}</Text>
                   {/*
                   <Text>Change in portfolio: {formatMoney(rowData.portfolioValue)}</Text>
                   */}
@@ -434,7 +448,11 @@ class OutlookTablePage extends PureComponent {
             <Text style={{color: 'white'}}>{Math.round(10*retirementOutlook.yearsToRetirement)/10} years</Text>
             <Text style={{color: 'white'}}>{formatMoney(retirementOutlook.retirementPortfolioValue)}</Text>
           </View>
-          <View style={{flex: 2, backgroundColor: 'white', borderTopWidth: 1, alignItems: 'center', justifyContent: 'center' }}>
+          <View style={{
+              position: 'absolute', right: 30, bottom: 30,
+              flex: 2, backgroundColor: 'white', borderTopWidth: 1,
+              alignItems: 'center', justifyContent: 'center'
+            }}>
             <Text>Widthdrawal rate: 4%</Text>
             <Text>Inflation 3.4%</Text>
           </View>
@@ -627,5 +645,19 @@ const styles = StyleSheet.create({
     borderColor: 'transparent'
   }
 });
+
+function formatMoneyCompact(num) {
+  if(num < 1000) {
+    return formatMoney(num);
+  } else if(num < 10000) {
+    return '$' + (Math.round(num/100)/10) + 'k';
+  } else if(num < 1000000) {
+    return '$' + (Math.round(num/1000)) + 'k';
+  } else {
+    return '$' + (Math.round(num/10000)/100) + 'm';
+  }
+}
+
+
 
 AppRegistry.registerComponent('EarlyRetireCalc', () => App);
