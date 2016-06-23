@@ -14,6 +14,7 @@ import ReactNative, {
   Switch,
   LayoutAnimation
 } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import NativeMethodsMixin from 'NativeMethodsMixin';
 import PureRenderMixin from 'react-addons-pure-render-mixin';
 import * as Animatable from 'react-native-animatable';
@@ -226,7 +227,7 @@ class Outlook extends PureComponent {
       <TouchableHighlight underlayColor='#99d9f4'
         onPress={()=>this.navigateToDetails()}
         style={styles.outlook}>
-          <View>
+        <View>
           {
             yearsToRetirement === NaN ?
               <Text>
@@ -244,7 +245,6 @@ class Outlook extends PureComponent {
                 with {formatMoney(this.props.retirementOutlook.retirementPortfolioValue)}
               </Text>
           }
-
           <Text style={styles.buttonText}>Go</Text>
         </View>
       </TouchableHighlight>
@@ -314,12 +314,18 @@ class OutlookTablePageIncomeExpenseRow extends PureComponent {
     super(props);
     this.state = {selectedRow: false};
   }
+  componentWillUpdate() {
+    LayoutAnimation.easeInEaseOut();
+  }
   render() {
     rowData = this.props.rowData;
+    rowSelected = this.state.selectedRow;
     return (
-      <TouchableHighlight onPress={()=>this.setState({selectedRow:!this.state.selectedRow})}>
+      <TouchableHighlight onPress={()=>{
+          this.setState({selectedRow:!this.state.selectedRow})
+        }}>
         <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-            backgroundColor: this.state.selectedRow ? 'blue' : '#dddddd'}}>
+            backgroundColor: rowSelected ? 'blue' : '#dddddd'}}>
           <View style={{flex: .15, paddingLeft: 15, paddingRight: 15}}></View>
           <View style={{width: 14, flexDirection: 'column', alignSelf: 'stretch',
             alignItems: 'center', justifyContent: 'center',
@@ -334,11 +340,11 @@ class OutlookTablePageIncomeExpenseRow extends PureComponent {
               %
             </Text>
           </View>
-          {this.state.selectedRow?
+          {rowSelected ?
             <View style={{height: 300}}>
               {this.props.allowDelete ?
                 <TouchableHighlight onPress={()=>scenarioStore.removeIncomePeriod(this.props.rowData.period)}>
-                  <Text>Delete</Text>
+                  <Icon name="rocket" size={30} color="#900" />
                 </TouchableHighlight>
                 :
                 null
@@ -369,6 +375,7 @@ class OutlookTablePage extends PureComponent {
   componentWillUnmount() {
     this.scenarioListener.remove();
   }
+
   render() {
     var scenario = this.state.scenario;
     var retirementOutlook = calc.calculate(scenario);
