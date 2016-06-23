@@ -269,8 +269,8 @@ class OutlookTablePageRow extends PureComponent {
     return (
       <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
         {this.renderYear()}
-        {this.renderMarker()}
-        <View style={{flex: .8, marginTop: 5, marginBottom: 5}}>
+        {/*this.renderMarker()*/}
+        <View style={{flex: .8/*, marginTop: 5, marginBottom: 5*/}}>
           {this.props.children}
         </View>
       </View>
@@ -280,7 +280,7 @@ class OutlookTablePageRow extends PureComponent {
     var year = new Date().getYear() + 1900 + this.props.year;
     return (
       // TODO: onpress => toggle display between year and age
-      <View style={{flex: .15, paddingLeft: 15, paddingRight: 15, paddingTop: 20, paddingBottom: 20}}>
+      <View style={{flex: .15, paddingLeft: 15, paddingRight: 15}}>
         <Text style={{color: 'gray'}}>{year}</Text>
       </View>
     );
@@ -424,18 +424,26 @@ class OutlookTablePage extends PureComponent {
           }
           renderRow={(rowData) =>
             rowData.type === 'year' ?
-              <OutlookTablePageRow year={rowData.year}>
-                <View style={{flexDirection: 'row'}}>
-                  <ProgressViewIOS
-                    style={{marginRight: 10, height: 20, flex: 1}}
-                    progress={rowData.portfolioValue / retirementOutlook.retirementPortfolioValue}>
-                  </ProgressViewIOS>
-                  <Text>{formatMoneyCompact(rowData.portfolioValue)}</Text>
-                  {/*
-                  <Text>Change in portfolio: {formatMoney(rowData.portfolioValue)}</Text>
-                  */}
-                </View>
-              </OutlookTablePageRow>
+              <View>
+                {this.state.selectedRow===rowData.year ?
+                  <Text>THIS IS A TEST</Text>
+                  : null
+                }
+                <OutlookTablePageRow year={rowData.year}>
+                  <TouchableHighlight onPress={()=>this.setState({selectedRow: rowData.year})}>
+                    <View style={{flexDirection: 'row'}}>
+                      <ProgressViewIOS
+                        style={{marginRight: 10, flex: 1, alignSelf: 'center'}}
+                        progress={rowData.portfolioValue / retirementOutlook.retirementPortfolioValue}>
+                      </ProgressViewIOS>
+                      <Text style={{marginRight: 10}}>{formatMoneyCompact(rowData.portfolioValue)}</Text>
+                      {/*
+                      <Text>Change in portfolio: {formatMoney(rowData.portfolioValue)}</Text>
+                      */}
+                    </View>
+                  </TouchableHighlight>
+                </OutlookTablePageRow>
+              </View>
               :
               <OutlookTablePageIncomeExpenseRow rowData={rowData}
                 allowDelete={scenario.incomePeriods[0] !== rowData.period}/>
@@ -653,11 +661,17 @@ function formatMoneyCompact(num) {
     return '$' + (Math.round(num/100)/10) + 'k';
   } else if(num < 1000000) {
     return '$' + (Math.round(num/1000)) + 'k';
-  } else {
+  } else if(num < 10000000){
     return '$' + (Math.round(num/10000)/100) + 'm';
+  } else {
+    return '$' + (Math.round(num/100000)/10) + 'm';
   }
 }
-
-
-
+/*
+friendlyDollarAmounts = [
+  1-20k (by 1k) = 100
+  105-200k (by 5k) = 20
+  210-
+]
+*/
 AppRegistry.registerComponent('EarlyRetireCalc', () => App);
