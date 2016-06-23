@@ -317,12 +317,13 @@ class OutlookTablePage extends PureComponent {
       yearDisplay: 'year', // 'age'
       scenario: this.props.scenario
     }
-    this.onScenarioChangedBound = (scenario) => { this.setState({scenario})};
-    scenarioStore.addListener('change', this.onScenarioChangedBound);
+    this.scenarioListener = scenarioStore.addListener('change',
+      (scenario) => { this.setState({scenario})}
+    );
   }
 
   componentWillUnmount() {
-    scenarioStore.removeListener('change', this.onScenarioChangedBound);
+    this.scenarioListener.remove();
   }
   render() {
     var retirementOutlook = calc.calculate(this.state.scenario);
@@ -399,7 +400,7 @@ class OutlookTablePage extends PureComponent {
           style={{height: 50, backgroundColor: 'pink', flexDirection: 'row', alignItems: 'stretch', justifyContent: 'center'}}>
           <View style={{flex: 3, backgroundColor: 'green', borderTopWidth: 1, alignItems: 'center', justifyContent: 'center'}}>
             <Text style={{color: 'white'}}>{Math.round(10*retirementOutlook.yearsToRetirement)/10} years</Text>
-            <Text style={{color: 'white'}}>$1,234,000</Text>
+            <Text style={{color: 'white'}}>{formatMoney(retirementOutlook.retirementPortfolioValue)}</Text>
           </View>
           <View style={{flex: 2, backgroundColor: 'white', borderTopWidth: 1, alignItems: 'center', justifyContent: 'center' }}>
             <Text>Widthdrawal rate: 4%</Text>
@@ -428,12 +429,13 @@ class MainScreen extends Component {
       }
       this.setState({ scenario: scenario, initialized: true });
     });
-    this.onScenarioChangedBound = this.onScenarioChanged.bind(this);
-    scenarioStore.addListener('change', this.onScenarioChangedBound);
+    this.scenarioListener = scenarioStore.addListener('change',
+      (scenario) => this.onScenarioChanged(scenario)
+    );
   }
 
   componentWillUnmount() {
-    scenarioStore.removeListener('change', this.onScenarioChangedBound);
+    this.scenarioListener.remove();
   }
 
   onScenarioChanged(scenario) {
