@@ -309,6 +309,50 @@ OutlookTablePageRow.propTypes = {
   year: PropTypes.number.isRequired
 }
 
+class OutlookTablePageIncomeExpenseRow extends PureComponent {
+  constructor(props) {
+    super(props);
+    this.state = {selectedRow: false};
+  }
+  render() {
+    rowData = this.props.rowData;
+    return (
+      <TouchableHighlight onPress={()=>this.setState({selectedRow:!this.state.selectedRow})}>
+        <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+            backgroundColor: this.state.selectedRow ? 'blue' : '#dddddd'}}>
+          <View style={{flex: .15, paddingLeft: 15, paddingRight: 15}}></View>
+          <View style={{width: 14, flexDirection: 'column', alignSelf: 'stretch',
+            alignItems: 'center', justifyContent: 'center',
+            marginRight: 10}}>
+            <View style={{backgroundColor: 'green', width: 2, flex: 1, height: 1}}/>
+          </View>
+          <View style={{flex: .8, marginTop: 5, marginBottom: 5}}>
+            <Text>Income: {formatMoney(rowData.annualIncome)}</Text>
+            <Text>Expenses: {formatMoney(rowData.annualSpending)}</Text>
+            <Text>Savings ratio: {
+                Math.round(100 * (rowData.annualIncome-rowData.annualSpending)/rowData.annualIncome)}
+              %
+            </Text>
+          </View>
+          {this.state.selectedRow?
+            <View style={{height: 300}}>
+              {this.props.allowDelete ?
+                <TouchableHighlight onPress={()=>scenarioStore.removeIncomePeriod(this.props.rowData.period)}>
+                  <Text>Delete</Text>
+                </TouchableHighlight>
+                :
+                null
+              }
+            </View>
+            :
+            null
+          }
+        </View>
+      </TouchableHighlight>
+    );
+  }
+}
+
 class OutlookTablePage extends PureComponent {
   constructor(props) {
     super(props);
@@ -326,7 +370,8 @@ class OutlookTablePage extends PureComponent {
     this.scenarioListener.remove();
   }
   render() {
-    var retirementOutlook = calc.calculate(this.state.scenario);
+    var scenario = this.state.scenario;
+    var retirementOutlook = calc.calculate(scenario);
     var annualBalances = retirementOutlook.annualBalances;
     var listItems = annualBalances.map(function(entry, index) {
       return { type: 'year', portfolioValue: entry, year: index + 1 };
@@ -334,10 +379,11 @@ class OutlookTablePage extends PureComponent {
     incomeIndices = [];
 
     var currentYearNumber = 0;
-    this.props.scenario.incomePeriods.forEach((period) => {
+    scenario.incomePeriods.forEach((period) => {
       listItems.splice(currentYearNumber, 0, {
         type: 'income/expenses',
-        annualIncome: period.annualIncome, annualSpending: period.annualSpending
+        annualIncome: period.annualIncome, annualSpending: period.annualSpending,
+        period: period
       });
       incomeIndices.push(++currentYearNumber);
       currentYearNumber += (period.years || 0);
@@ -355,7 +401,7 @@ class OutlookTablePage extends PureComponent {
                 <Text>initial portfolio value</Text>
                 <NumberInput
                   inputStyle={[styles.scenarioFormRowInput, {flex: 1}]}
-                  value={this.props.scenario.initialPortfolioValue}
+                  value={scenario.initialPortfolioValue}
                   getFormattedText={formatMoney}
                   onChange={(num)=>scenarioStore.setInitialPortfolioValue(num)}
                   />
@@ -364,35 +410,16 @@ class OutlookTablePage extends PureComponent {
           }
           renderRow={(rowData) =>
             rowData.type === 'year' ?
-              <View style={{flexDirection: 'column'}}>
-                <OutlookTablePageRow year={rowData.year}>
-                  <View>
-                    <Text>{formatMoney(rowData.portfolioValue)}</Text>
-                    {/*
-                    <Text>Change in portfolio: {formatMoney(rowData.portfolioValue)}</Text>
-                    <Text>Change in portfolio: {formatMoney(rowData.portfolioValue)}</Text>
-                    */}
-                  </View>
-                </OutlookTablePageRow>
-              </View>
+              <OutlookTablePageRow year={rowData.year}>
+                <View>
+                  <Text>{formatMoney(rowData.portfolioValue)}</Text>
+                  {/*
+                  <Text>Change in portfolio: {formatMoney(rowData.portfolioValue)}</Text>
+                  */}
+                </View>
+              </OutlookTablePageRow>
               :
-              <View style={{flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-                  backgroundColor: '#dddddd'}}>
-                <View style={{flex: .15, paddingLeft: 15, paddingRight: 15}}></View>
-                <View style={{width: 14, flexDirection: 'column', alignSelf: 'stretch',
-                  alignItems: 'center', justifyContent: 'center',
-                  marginRight: 10}}>
-                  <View style={{backgroundColor: 'green', width: 2, flex: 1, height: 1}}/>
-                </View>
-                <View style={{flex: .8, marginTop: 5, marginBottom: 5}}>
-                  <Text>Income: {formatMoney(rowData.annualIncome)}</Text>
-                  <Text>Expenses: {formatMoney(rowData.annualSpending)}</Text>
-                  <Text>Savings ratio: {
-                      Math.round(100 * (rowData.annualIncome-rowData.annualSpending)/rowData.annualIncome)}
-                    %
-                  </Text>
-                </View>
-              </View>
+              <OutlookTablePageIncomeExpenseRow rowData={rowData} allowDelete={scenario.incomePeriods[0] !== rowData.period}/>
             }
           />
 
