@@ -143,9 +143,7 @@ class EarningPeriodListView extends PureComponent {
   removePeriod(periodComponent, incomePeriod) {
     NativeMethodsMixin.measure.call(periodComponent, (a,b,c,height) => {
       periodComponent.transition({height}, {height: 0}, 300);
-      setTimeout(()=>{
-        scenarioStore.removeIncomePeriod(incomePeriod);
-      }, 300);
+      setTimeout(()=>scenarioStore.removeIncomePeriod(incomePeriod), 300);
     });
 
     this._renderID++; // so deleted/animated-out rows don't get reused
@@ -344,8 +342,14 @@ class OutlookTablePage extends PureComponent {
           stickyHeaderIndices={incomeIndices}
           renderHeader={()=>
             <OutlookTablePageRow year={0}>
-              <View>
-                <Text>initial portfolio value: {formatMoney(this.props.scenario.initialPortfolioValue)}</Text>
+              <View style={{flexDirection: 'row'}}>
+                <Text>initial portfolio value</Text>
+                <NumberInput
+                  inputStyle={[styles.scenarioFormRowInput, {flex: 1}]}
+                  value={this.props.scenario.initialPortfolioValue}
+                  getFormattedText={formatMoney}
+                  onChange={(num)=>scenarioStore.setInitialPortfolioValue(num)}
+                  />
               </View>
             </OutlookTablePageRow>
           }
@@ -409,20 +413,20 @@ class MainScreen extends Component {
     super(props);
     this.state = {
       initialized: false,
-      scenario: {
-        initialPortfolioValue: 100000,
-        annualReturn: .05,
-        withdrawalRate: .04,
-        incomePeriods: [{
-          annualIncome: 100000,
-          annualSpending: 45000
-        }]
-      }
+      scenario: null
     };
     scenarioStore.getScenario((err, scenario) => {
+      if(err) {
+        throw new Error(err);
+      }
       this.setState({ scenario: scenario, initialized: true });
     });
-    scenarioStore.onChange((scenario)=>this.onScenarioChanged(scenario));
+    this.onScenarioChangedBound = this.onScenarioChanged.bind(this);
+    scenarioStore.addListener('change', this.onScenarioChangedBound);
+  }
+
+  componentWillUnmount() {
+    scenarioStore.removeListener('change', this.onScenarioChangedBound);
   }
 
   onScenarioChanged(scenario) {
@@ -432,7 +436,7 @@ class MainScreen extends Component {
   render() {
     var scenario = this.state.scenario;
 
-    var retirementOutlook = calc.calculate(scenario);
+    var retirementOutlook = scenario ? calc.calculate(scenario) : null;
 
     // using ScrollView for dismiss keyboard functionality
     return (
