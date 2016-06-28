@@ -1,20 +1,12 @@
 import React, { Component, PropTypes } from 'react';
 import ReactNative, {
   AppRegistry,
-  StyleSheet,
   Text,
   TouchableHighlight,
-  TouchableOpacity,
   View,
   ScrollView,
   NavigatorIOS,
-  StatusBar,
-  ListView,
-  Picker,
-  Switch,
-  LayoutAnimation,
-  ProgressViewIOS,
-  Slider
+  ListView
 } from 'react-native';
 import NativeMethodsMixin from 'NativeMethodsMixin';
 import * as Animatable from 'react-native-animatable';
