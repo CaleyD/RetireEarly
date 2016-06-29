@@ -17,7 +17,7 @@ import styles from './lib/styles.js';
 
 var scenarioStore = require('./lib/scenarioStore');
 var calc = require('./lib/calculator.js');
-var formatMoneyCompact = require('./lib/formatMoney.js').formatMoneyCompact;
+import formatMoneyCompact from './lib/formatMoney';
 
 var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 
