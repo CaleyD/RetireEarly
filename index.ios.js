@@ -91,20 +91,7 @@ class EarningPeriodListView extends PureComponent {
                 <Text style={{flex: .4}}>
                   Earning period {this.props.index===0 && !allowDelete ? '' : index + 1}
                 </Text>
-                {allowDelete ?
-                  <TouchableHighlight underlayColor='#99d9f4' onPress={()=>this.removePeriod(view, incomePeriod)}>
-                      <Text style={{flex: .4, textAlign:'right'}}>Remove</Text>
-                  </TouchableHighlight>
-                  : null
-                }
               </View>
-
-              <InputFormInputRow labelText='Annual Income' type='dollar'
-                value={incomePeriod.annualIncome}
-                onChange={(num)=>this.onChange(incomePeriod, 'annualIncome', num)}/>
-              <InputFormInputRow labelText='Annual Spending' type='dollar'
-                value={incomePeriod.annualSpending}
-                onChange={(num)=>this.onChange(incomePeriod, 'annualSpending', num)}/>
 
               {(index !== incomePeriods.length-1) ?
                 <InputFormInputRow labelText='Years' type='years'
