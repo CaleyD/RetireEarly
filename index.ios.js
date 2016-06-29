@@ -17,7 +17,7 @@ import styles from './lib/styles.js';
 
 var scenarioStore = require('./lib/scenarioStore');
 var calc = require('./lib/calculator.js');
-var formatMoney = require('./lib/formatMoney.js').formatMoney;
+var formatMoneyCompact = require('./lib/formatMoney.js').formatMoneyCompact;
 
 var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 
@@ -34,12 +34,13 @@ class InputFormInputRow extends PureComponent {
           <NumberInput value={this.state.value} inputStyle={styles.scenarioFormRowInput}
               onChange={(num)=>this.onChange(num)}
               scrollview={scrollView}
-              getFormattedText={(num)=>formatMoney(num)}
+              getFormattedText={(num)=>formatMoneyCompact(num)}
               />
             : this.props.type === 'percent' ?
           <NumberInput value={this.state.value} inputStyle={styles.scenarioFormRowInput}
               onChange={(num)=>this.onChange(num)}
               scrollview={scrollView}
+              keyboardType={'decimal-pad'}
               getFormattedText={(num)=>this.formatPercent(num)}
               />
             :
@@ -159,10 +160,10 @@ class MarketAssumptions extends PureComponent {
         {/* TODO - add horizontal scrolling options for: conservative, moderate, aggressive */}
 
         <InputFormInputRow labelText='Annual Return' type='percent'
-          value={this.props.scenario.annualReturn}
+          value={this.props.scenario.annualReturn} scrollview={scrollView}
           onChange={(num)=>scenarioStore.setAnnualReturn(num)}/>
         <InputFormInputRow labelText='Withdrawal Rate' type='percent'
-          value={this.props.scenario.withdrawalRate}
+          value={this.props.scenario.withdrawalRate} scrollview={scrollView}
           onChange={(num)=>scenarioStore.setWithdrawalRate(num)}/>
       </View>
     );
@@ -177,12 +178,6 @@ class InputForm extends PureComponent {
     var scenario = this.props.scenario;
     return (
       <View style={styles.container}>
-        {/* TODO - allow negative values for people in debt starting out */}
-        <View style={styles.card}>
-          <InputFormInputRow labelText='Initial Portfolio Value' type='dollar'
-            value={this.props.scenario.initialPortfolioValue}
-            onChange={(num)=>scenarioStore.setInitialPortfolioValue(num)}/>
-        </View>
 
         <EarningPeriodListView incomePeriods={scenario.incomePeriods} scenario={scenario}/>
 
@@ -218,18 +213,18 @@ class Outlook extends PureComponent {
           {
             yearsToRetirement === NaN ?
               <Text>
-                You will need {formatMoney(this.props.retirementOutlook.retirementPortfolioValue)} to
+                You will need {formatMoneyCompact(this.props.retirementOutlook.retirementPortfolioValue)} to
                 retire but you will never get there because you are outspending your income.
               </Text>
             : yearsToRetirement <= 0 ?
               <Text>
-                You need {formatMoney(this.props.retirementOutlook.retirementPortfolioValue)} and
+                You need {formatMoneyCompact(this.props.retirementOutlook.retirementPortfolioValue)} and
                 you already have it - you can retire now!
               </Text>
             :
               <Text>
                 You can retire in {yearsToRetirement} {yearsToRetirement === 1 ? 'year ' : 'years '}
-                with {formatMoney(this.props.retirementOutlook.retirementPortfolioValue)}
+                with {formatMoneyCompact(this.props.retirementOutlook.retirementPortfolioValue)}
               </Text>
           }
           <Text style={styles.buttonText}>Go</Text>
