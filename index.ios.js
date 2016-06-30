@@ -70,73 +70,6 @@ InputFormInputRow.propTypes = {
 // TODO: refactor - components not technically PURE because of this variable!
 var scrollView;
 
-class EarningPeriodListView extends PureComponent {
-  constructor(props) {
-    super(props);
-    this._renderID = 0;
-  }
-  render() {
-    var incomePeriods = this.props.incomePeriods;
-    return (
-      <ScrollView alwaysBounceVertical={false} ref={(c) => scrollView = c} style={{height: 300}} >
-        {incomePeriods.map((incomePeriod, index) => {
-          var allowDelete = incomePeriods.length > 1;
-          var view;
-
-          return (
-            <Animatable.View style={styles.card} ref={(c)=>view = c}
-              key={index + ':' + this._renderID}>
-
-              <View style={[styles.cardHeader, {flexDirection: 'row'}]}>
-                <Text style={{flex: .4}}>
-                  Earning period {this.props.index===0 && !allowDelete ? '' : index + 1}
-                </Text>
-              </View>
-
-              {(index !== incomePeriods.length-1) ?
-                <InputFormInputRow labelText='Years' type='years'
-                  value={incomePeriod.years}
-                  onChange={(num)=>this.onChange(incomePeriod, 'years', num)}/>
-                :
-                <TouchableHighlight underlayColor='#99d9f4'
-                  style={[styles.button, {marginBottom: 4, marginHorizontal: 4}]}
-                  onPress={()=> this.addPeriod()}>
-                  <Text style={styles.buttonText}>Add earning period</Text>
-                </TouchableHighlight>
-              }
-            </Animatable.View>
-          );
-        })}
-
-      </ScrollView>
-    );
-  }
-  onChange(incomePeriod, propName, num) {
-    var updates = {};
-    updates[propName] = num;
-    scenarioStore.updateIncomePeriod(incomePeriod, updates);
-  }
-  removePeriod(periodComponent, incomePeriod) {
-    NativeMethodsMixin.measure.call(periodComponent, (a,b,c,height) => {
-      periodComponent.transition({height}, {height: 0}, 300);
-      setTimeout(()=>scenarioStore.removeIncomePeriod(incomePeriod), 300);
-    });
-
-    this._renderID++; // so deleted/animated-out rows don't get reused
-  }
-  addPeriod() {
-    var latestPeriod = this.props.incomePeriods[this.props.incomePeriods.length-1];
-
-    scenarioStore.appendIncomePeriod(1, {
-      annualIncome: latestPeriod.annualIncome,
-      annualSpending: latestPeriod.annualSpending
-    });
-  }
-}
-EarningPeriodListView.propTypes = {
-  incomePeriods: PropTypes.array.isRequired
-};
-
 class MarketAssumptions extends PureComponent {
   render() {
     return (
@@ -157,24 +90,6 @@ class MarketAssumptions extends PureComponent {
   }
 }
 MarketAssumptions.propTypes = {
-  scenario: PropTypes.object.isRequired
-};
-
-class InputForm extends PureComponent {
-  render() {
-    var scenario = this.props.scenario;
-    return (
-      <View style={styles.container}>
-
-        <EarningPeriodListView incomePeriods={scenario.incomePeriods} scenario={scenario}/>
-
-        <MarketAssumptions scenario={scenario}/>
-
-      </View>
-    );
-  }
-}
-InputForm.propTypes = {
   scenario: PropTypes.object.isRequired
 };
 
@@ -272,7 +187,7 @@ class MainScreen extends Component {
         <Intro/>
 
         {this.state.initialized ?
-          <InputForm scenario={scenario}/>
+          <MarketAssumptions scenario={scenario}/>
           : null
         }
         {this.state.initialized && retirementOutlook ?
