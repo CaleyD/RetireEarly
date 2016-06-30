@@ -4,12 +4,8 @@ import ReactNative, {
   Text,
   TouchableHighlight,
   View,
-  ScrollView,
-  NavigatorIOS,
-  ListView
+  NavigatorIOS
 } from 'react-native';
-import NativeMethodsMixin from 'NativeMethodsMixin';
-import * as Animatable from 'react-native-animatable';
 import NumberInput from './lib/react-native-numberinput';
 import PureComponent from './lib/pureComponent';
 import OutlookTablePage from './lib/outlookPage';
@@ -18,8 +14,6 @@ import styles from './lib/styles.js';
 var scenarioStore = require('./lib/scenarioStore');
 var calc = require('./lib/calculator.js');
 import formatMoneyCompact from './lib/formatMoney';
-
-var ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
 
 class InputFormInputRow extends PureComponent {
   constructor(props) {
@@ -33,20 +27,17 @@ class InputFormInputRow extends PureComponent {
         {(this.props.type === 'dollar' ?
           <NumberInput value={this.state.value} inputStyle={styles.scenarioFormRowInput}
               onChange={(num)=>this.onChange(num)}
-              scrollview={scrollView}
               getFormattedText={(num)=>formatMoneyCompact(num)}
               />
             : this.props.type === 'percent' ?
           <NumberInput value={this.state.value} inputStyle={styles.scenarioFormRowInput}
               onChange={(num)=>this.onChange(num)}
-              scrollview={scrollView}
               keyboardType={'decimal-pad'}
               getFormattedText={(num)=>this.formatPercent(num)}
               />
             :
           <NumberInput value={this.state.value} inputStyle={styles.scenarioFormRowInput}
               onChange={(num)=>this.onChange(num)}
-              scrollview={scrollView}
               />
         )}
       </View>
@@ -67,9 +58,6 @@ InputFormInputRow.propTypes = {
   onChange: PropTypes.func
 };
 
-// TODO: refactor - components not technically PURE because of this variable!
-var scrollView;
-
 class MarketAssumptions extends PureComponent {
   render() {
     return (
@@ -80,10 +68,10 @@ class MarketAssumptions extends PureComponent {
         {/* TODO - add horizontal scrolling options for: conservative, moderate, aggressive */}
 
         <InputFormInputRow labelText='Annual Return' type='percent'
-          value={this.props.scenario.annualReturn} scrollview={scrollView}
+          value={this.props.scenario.annualReturn}
           onChange={(num)=>scenarioStore.setAnnualReturn(num)}/>
         <InputFormInputRow labelText='Withdrawal Rate' type='percent'
-          value={this.props.scenario.withdrawalRate} scrollview={scrollView}
+          value={this.props.scenario.withdrawalRate}
           onChange={(num)=>scenarioStore.setWithdrawalRate(num)}/>
       </View>
     );
@@ -179,9 +167,8 @@ class MainScreen extends Component {
 
     var retirementOutlook = scenario ? calc.calculate(scenario) : null;
 
-    // using ScrollView for dismiss keyboard functionality
     return (
-      <ScrollView contentContainerStyle={styles.container} scrollEnabled={false}
+      <View contentContainerStyle={styles.container} scrollEnabled={false}
           style={{backgroundColor:'green'}}>
 
         <Intro/>
@@ -196,7 +183,7 @@ class MainScreen extends Component {
           : null
         }
 
-      </ScrollView>
+      </View>
     );
   }
 }
