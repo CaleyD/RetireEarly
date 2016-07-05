@@ -10,16 +10,13 @@ class App extends Component {
   render() {
     return (
       <NavigatorIOS
-        style={styles.container}
+        style={styles.container} itemWrapperStyle={styles.itemWrapper}
+        tintColor="green" barTintColor="green" shadowHidden={true}
         initialRoute={{
           title: 'Early Retirement Calculator',
           component: OutlookTablePage,
           navigationBarHidden: true
         }}
-        itemWrapperStyle={styles.itemWrapper}
-        tintColor="green"
-        barTintColor="green"
-        shadowHidden={true}
       />
     );
   }
