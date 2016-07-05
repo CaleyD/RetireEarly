@@ -39,18 +39,18 @@ class Outlook extends PureComponent {
           {
             yearsToRetirement === NaN ?
               <Text>
-                You will need {formatMoneyCompact(this.props.retirementOutlook.retirementPortfolioValue)} to
+                You will need {formatMoneyCompact(this.props.retirementOutlook.retirementPortfolio)} to
                 retire but you will never get there because you are outspending your income.
               </Text>
             : yearsToRetirement <= 0 ?
               <Text>
-                You need {formatMoneyCompact(this.props.retirementOutlook.retirementPortfolioValue)} and
+                You need {formatMoneyCompact(this.props.retirementOutlook.retirementPortfolio)} and
                 you already have it - you can retire now!
               </Text>
             :
               <Text>
                 You can retire in {yearsToRetirement} {yearsToRetirement === 1 ? 'year ' : 'years '}
-                with {formatMoneyCompact(this.props.retirementOutlook.retirementPortfolioValue)}
+                with {formatMoneyCompact(this.props.retirementOutlook.retirementPortfolio)}
               </Text>
           }
           <Text style={styles.buttonText}>Go</Text>
