@@ -7,21 +7,12 @@ import OutlookTablePage from './lib/outlookPage';
 import styles from './lib/styles.js';
 
 class App extends Component {
-  constructor(props) {
-    super(props);
-    this.statics = {
-      title: '<NavigatorIOS>',
-      description: 'Early Retirement Calculator',
-      external: true,
-    };
-  }
-
   render() {
     return (
       <NavigatorIOS
         style={styles.container}
         initialRoute={{
-          title: this.statics.title,
+          title: 'Early Retirement Calculator',
           component: OutlookTablePage,
           navigationBarHidden: true
         }}
