@@ -1,6 +1,6 @@
 import reducers from '../lib/reducers/index.js';
 import {
-  addPeriod, deletePeriod, movePeriod, setAnnualReturn, setWithdrawalRate,
+  addPeriod, deletePeriod, editPeriod, movePeriod, setAnnualReturn, setWithdrawalRate,
   setInitialPortfolio, reset
 } from '../lib/reducers/index.js';
 import {createStore} from 'redux';
@@ -61,15 +61,15 @@ describe('Store actions', () => {
       expect(() => store.dispatch(deletePeriod(period1))).to.throw(Error);
     });
 
-    if('should update income period', () => {
+    it('should update income period', () => {
       store.dispatch(addPeriod(1, 1.1, 0));
       store.dispatch(addPeriod(2, 2.2, 1));
       let [period1, period2] = store.getState().scenario.incomePeriods;
 
-      store.dispatch(updatePeriod(period1, {income: 888}));
-      store.dispatch(updatePeriod(period2, {expenses: 999}));
+      store.dispatch(editPeriod(period1, {income: 888}));
+      store.dispatch(editPeriod(period2, {expenses: 999}));
 
-      store.getState().scenario.incomePeriods.should.equal([
+      store.getState().scenario.incomePeriods.should.deep.equal([
         {income:888, expenses: 1.1},
         {income: 2, expenses: 999}
       ]);
