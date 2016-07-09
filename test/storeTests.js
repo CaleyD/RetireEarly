@@ -160,7 +160,7 @@ describe('Store actions', () => {
         withdrawalRate: null,
         annualReturn: null,
         initialPortfolio: null,
-        incomePeriods: []
+        incomePeriods: [{income: null, expenses: null}]
       });
     });
   });
