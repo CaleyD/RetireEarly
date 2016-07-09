@@ -3,7 +3,7 @@ import {
   AppRegistry,
   NavigatorIOS
 } from 'react-native';
-import OutlookTablePage from './lib/outlookPage';
+import OutlookPage from './lib/outlookPage';
 import styles from './lib/styles.js';
 
 class App extends Component {
@@ -14,7 +14,7 @@ class App extends Component {
         tintColor="green" barTintColor="green" shadowHidden={true}
         initialRoute={{
           title: 'Early Retirement Calculator',
-          component: OutlookTablePage,
+          component: OutlookPage,
           navigationBarHidden: true
         }}
       />
