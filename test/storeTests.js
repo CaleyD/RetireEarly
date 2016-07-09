@@ -157,8 +157,8 @@ describe('Store actions', () => {
       store.dispatch(reset());
 
       store.getState().scenario.should.deep.equal({
-        withdrawalRate: null,
-        annualReturn: null,
+        withdrawalRate: .04,
+        annualReturn: .05,
         initialPortfolio: null,
         incomePeriods: [{income: null, expenses: null}]
       });
