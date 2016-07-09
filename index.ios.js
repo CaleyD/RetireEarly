@@ -9,17 +9,7 @@ import styles from './lib/styles.js';
 
 class App extends Component {
   render() {
-    return (
-      <NavigatorIOS
-        style={styles.container} itemWrapperStyle={styles.itemWrapper}
-        tintColor="green" barTintColor="green" shadowHidden={true}
-        initialRoute={{
-          title: 'Early Retirement Calculator',
-          component: OutlookPage,
-          navigationBarHidden: true
-        }}
-      />
-    );
+    return <OutlookPage />;
   }
 }
 
