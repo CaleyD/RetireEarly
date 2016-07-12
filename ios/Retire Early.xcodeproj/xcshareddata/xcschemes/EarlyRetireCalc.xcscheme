@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0620"
+   LastUpgradeVersion = "0730"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -16,8 +16,8 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
                BuildableName = "EarlyRetireCalc.app"
-               BlueprintName = "EarlyRetireCalc"
-               ReferencedContainer = "container:EarlyRetireCalc.xcodeproj">
+               BlueprintName = "Retire Early"
+               ReferencedContainer = "container:Retire Early.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -29,27 +29,27 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "EarlyRetireCalcTests.xctest"
-               BlueprintName = "EarlyRetireCalcTests"
-               ReferencedContainer = "container:EarlyRetireCalc.xcodeproj">
+               BuildableName = "Retire Early.xctest"
+               BlueprintName = "Retire EarlyTests"
+               ReferencedContainer = "container:Retire Early.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
+      buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES"
-      buildConfiguration = "Debug">
+      shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
          <TestableReference
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "EarlyRetireCalcTests.xctest"
-               BlueprintName = "EarlyRetireCalcTests"
-               ReferencedContainer = "container:EarlyRetireCalc.xcodeproj">
+               BuildableName = "Retire Early.xctest"
+               BlueprintName = "Retire EarlyTests"
+               ReferencedContainer = "container:Retire Early.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -58,19 +58,22 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
             BuildableName = "EarlyRetireCalc.app"
-            BlueprintName = "EarlyRetireCalc"
-            ReferencedContainer = "container:EarlyRetireCalc.xcodeproj">
+            BlueprintName = "Retire Early"
+            ReferencedContainer = "container:Retire Early.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
+      <AdditionalOptions>
+      </AdditionalOptions>
    </TestAction>
    <LaunchAction
+      buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
       useCustomWorkingDirectory = "NO"
-      buildConfiguration = "Debug"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
+      debugServiceExtension = "internal"
       allowLocationSimulation = "YES">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
@@ -78,18 +81,18 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
             BuildableName = "EarlyRetireCalc.app"
-            BlueprintName = "EarlyRetireCalc"
-            ReferencedContainer = "container:EarlyRetireCalc.xcodeproj">
+            BlueprintName = "Retire Early"
+            ReferencedContainer = "container:Retire Early.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>
    <ProfileAction
+      buildConfiguration = "Release"
       shouldUseLaunchSchemeArgsEnv = "YES"
       savedToolIdentifier = ""
       useCustomWorkingDirectory = "NO"
-      buildConfiguration = "Release"
       debugDocumentVersioning = "YES">
       <BuildableProductRunnable
          runnableDebuggingMode = "0">
@@ -97,8 +100,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
             BuildableName = "EarlyRetireCalc.app"
-            BlueprintName = "EarlyRetireCalc"
-            ReferencedContainer = "container:EarlyRetireCalc.xcodeproj">
+            BlueprintName = "Retire Early"
+            ReferencedContainer = "container:Retire Early.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
