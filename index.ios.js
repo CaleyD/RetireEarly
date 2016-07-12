@@ -5,11 +5,22 @@ import {
   NavigatorIOS
 } from 'react-native';
 import OutlookPage from './lib/outlookPage';
+import Intro from './lib/intro';
 import styles from './lib/styles.js';
 
 class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      intro: true
+    };
+  }
   render() {
-    return <OutlookPage />;
+    if(this.state.intro) {
+      return <Intro onContinue={()=>this.setState({intro: false})}/>;
+    } else {
+      return <OutlookPage/>;
+    }
   }
 }
 
