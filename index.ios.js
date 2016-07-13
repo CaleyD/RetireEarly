@@ -1,26 +1,51 @@
 'use strict';
 import React, { Component } from 'react';
-import {
-  AppRegistry,
-  NavigatorIOS
-} from 'react-native';
+import { AppRegistry } from 'react-native';
 import OutlookPage from './lib/outlookPage';
 import Intro from './lib/intro';
-import styles from './lib/styles.js';
 
+import { createStore } from 'redux';
+import reducer, { setInitialPortfolio, editPeriod } from './lib/reducers/index.js';
+const store = createStore(reducer);
+const dispatch = store.dispatch.bind(store);
+/*
+const key = 'scenario';
+AsyncStorage.getItem(key, function(err, value) {
+  if(err) {
+    return callback(err);
+  }
+  scenario = value ? JSON.parse(value) : null;
+  store = createStore(reducer, Object.freeze(scenario));
+});
+*/
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      intro: true
+      intro: true,
+      scenario: store.getState().scenario
     };
+    this.unsubscribeScenarioListener = store.subscribe(() => {
+      requestAnimationFrame(()=> {
+        this.setState({ scenario: store.getState().scenario });
+      });
+    });
+  }
+  componentWillUnmount() {
+    this.unsubscribeScenarioListener();
   }
   render() {
     if(this.state.intro) {
-      return <Intro onContinue={()=>this.setState({intro: false})}/>;
+      return <Intro onContinue={(values)=>this.continueFromIntro(values)}/>;
     } else {
-      return <OutlookPage/>;
+      return <OutlookPage scenario={this.state.scenario} dispatch={dispatch}/>;
     }
+  }
+  continueFromIntro({ initialPortfolio, income, expenses }) {
+    dispatch(setInitialPortfolio(initialPortfolio));
+    dispatch(editPeriod(this.state.scenario.incomePeriods[0],
+      { income: income, expenses: expenses }));
+    this.setState({ intro: false });
   }
 }
 
