@@ -1,49 +1,56 @@
 'use strict';
 import React, { Component } from 'react';
-import { AppRegistry } from 'react-native';
+import { AppRegistry, AsyncStorage, View, Text } from 'react-native';
 import OutlookPage from './lib/outlookPage';
 import Intro from './lib/intro';
 
 import { createStore } from 'redux';
 import reducer, { setInitialPortfolio, editPeriod } from './lib/reducers/index.js';
-const store = createStore(reducer);
-const dispatch = store.dispatch.bind(store);
-/*
 const key = 'scenario';
-AsyncStorage.getItem(key, function(err, value) {
-  if(err) {
-    return callback(err);
-  }
-  scenario = value ? JSON.parse(value) : null;
-  store = createStore(reducer, Object.freeze(scenario));
-});
-*/
+
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      intro: true,
-      scenario: store.getState().scenario
+      loading: true,
+      scenario: null
     };
-    this.unsubscribeScenarioListener = store.subscribe(() => {
-      requestAnimationFrame(()=> {
-        this.setState({ scenario: store.getState().scenario });
+
+    // init store
+    AsyncStorage.getItem(key, (err, value) => {
+      if(err) {
+        throw err;
+      }
+      const store = value ?
+        createStore(reducer,  Object.freeze(JSON.parse(value))) :
+        createStore(reducer);
+      this.dispatch = store.dispatch.bind(store);
+      this.unsubscribeStoreListener = store.subscribe(() => {
+        requestAnimationFrame(()=> {
+          this.setState({ scenario: store.getState().scenario });
+        });
       });
+      this.setState({ loading: false, scenario: store.getState().scenario });
     });
   }
   componentWillUnmount() {
-    this.unsubscribeScenarioListener();
+    if(this.unsubscribeStoreListener) {
+      this.unsubscribeStoreListener();
+    }
   }
   render() {
-    if(this.state.intro) {
+    if(this.state.loading) {
+      return <View><Text>Loading</Text></View>;
+    } else if(!this.state.scenario || typeof this.state.scenario.initialPortfolio !== 'number') {
+      // todo: refactor conditional statement
       return <Intro onContinue={(values)=>this.continueFromIntro(values)}/>;
     } else {
-      return <OutlookPage scenario={this.state.scenario} dispatch={dispatch}/>;
+      return <OutlookPage scenario={this.state.scenario} dispatch={this.dispatch}/>;
     }
   }
   continueFromIntro({ initialPortfolio, income, expenses }) {
-    dispatch(setInitialPortfolio(initialPortfolio));
-    dispatch(editPeriod(this.state.scenario.incomePeriods[0],
+    this.dispatch(setInitialPortfolio(initialPortfolio));
+    this.dispatch(editPeriod(this.state.scenario.incomePeriods[0],
       { income: income, expenses: expenses }));
     this.setState({ intro: false });
   }
