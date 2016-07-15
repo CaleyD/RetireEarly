@@ -51,9 +51,7 @@ class App extends Component {
   }
   continueFromIntro({ initialPortfolio, income, expenses }) {
     this.dispatch(setInitialPortfolio(initialPortfolio));
-    this.dispatch(editPeriod(this.state.scenario.incomePeriods[0],
-      { income: income, expenses: expenses }));
-    this.setState({ intro: false });
+    this.dispatch(editPeriod(this.state.scenario.incomePeriods[0], { income, expenses }));
   }
 }
 
