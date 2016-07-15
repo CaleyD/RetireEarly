@@ -26,6 +26,7 @@ class App extends Component {
         createStore(reducer);
       this.dispatch = store.dispatch.bind(store);
       this.unsubscribeStoreListener = store.subscribe(() => {
+        AsyncStorage.setItem(key, JSON.stringify(store.getState()));
         requestAnimationFrame(()=> {
           this.setState({ scenario: store.getState().scenario });
         });
