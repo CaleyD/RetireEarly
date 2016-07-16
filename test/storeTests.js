@@ -17,6 +17,7 @@ describe('Store actions', () => {
       store = createStore(reducers, {});
     });
 
+    // TODO: refactor addPeriod to take options object
     it('should add income period', () => {
       store.dispatch(addPeriod(1, 1.1, 0));
       store.dispatch(addPeriod(2, 2.2, 0));
@@ -28,6 +29,17 @@ describe('Store actions', () => {
         {income: 3, expenses: 3.3},
         ,,,,
         {income: 4, expenses: 4.4}
+      ]);
+    });
+
+    it('should add period and default to preceeding period\'s values', () => {
+      store.dispatch(addPeriod(1, 1.1, 0));
+      store.dispatch(addPeriod(undefined, undefined, 2));
+
+      store.getState().scenario.incomePeriods.should.deep.equal([
+        {income: 1, expenses: 1.1},
+        ,
+        {income: 1, expenses: 1.1}
       ]);
     });
 
