@@ -88,16 +88,5 @@ class Outlook extends PureComponent {
       </TouchableHighlight>
     );
   }
-  navigateToDetails() {
-    this.props.navigator.push({
-        title: "Path to Financial Independence",
-        component: OutlookTablePage,
-        backButtonTitle: 'back',
-        passProps: {
-          toggleNavBar: this.props.toggleNavBar,
-          scenario: this.props.scenario
-        }
-      });
-  }
 }
 */
