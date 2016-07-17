@@ -11,10 +11,7 @@ const key = 'scenario';
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      loading: true,
-      scenario: null
-    };
+    this.state = { scenario: null };
 
     // init store
     AsyncStorage.getItem(key, (err, value) => {
@@ -31,16 +28,14 @@ class App extends Component {
           this.setState({ scenario: store.getState().scenario });
         });
       });
-      this.setState({ loading: false, scenario: store.getState().scenario });
+      this.setState({ scenario: store.getState().scenario });
     });
   }
   componentWillUnmount() {
-    if(this.unsubscribeStoreListener) {
-      this.unsubscribeStoreListener();
-    }
+    this.unsubscribeStoreListener();
   }
   render() {
-    if(this.state.loading) {
+    if(!this.state.scenario) {
       return <View><Text>Loading</Text></View>;
     } else if(!this.state.scenario || typeof this.state.scenario.initialPortfolio !== 'number') {
       // todo: refactor conditional statement
