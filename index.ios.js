@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import { AppRegistry, AsyncStorage, View, Text } from 'react-native';
 import OutlookPage from './lib/outlookPage';
 import Intro from './lib/intro';
-
 import { createStore } from 'redux';
 import reducer, { setInitialPortfolio, editPeriod } from './lib/reducers/index.js';
 const key = 'scenario';
