@@ -11,6 +11,7 @@
     "react-addons-pure-render-mixin": "^15.2.0",
     "react-addons-update": "^15.2.0",
     "react-native": "^0.29.0",
+    "react-native-dial": "git+https://github.com/CaleyD/react-native-dial.git",
     "react-native-sortable-listview": "0.0.8",
     "react-native-swiper": "^1.4.6",
     "react-native-vector-icons": "^2.0.3",
