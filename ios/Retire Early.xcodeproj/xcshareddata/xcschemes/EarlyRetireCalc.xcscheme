@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "EarlyRetireCalc.app"
+               BuildableName = "Retire Early.app"
                BlueprintName = "Retire Early"
                ReferencedContainer = "container:Retire Early.xcodeproj">
             </BuildableReference>
@@ -57,7 +57,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "EarlyRetireCalc.app"
+            BuildableName = "Retire Early.app"
             BlueprintName = "Retire Early"
             ReferencedContainer = "container:Retire Early.xcodeproj">
          </BuildableReference>
@@ -80,7 +80,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "EarlyRetireCalc.app"
+            BuildableName = "Retire Early.app"
             BlueprintName = "Retire Early"
             ReferencedContainer = "container:Retire Early.xcodeproj">
          </BuildableReference>
@@ -99,7 +99,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "EarlyRetireCalc.app"
+            BuildableName = "Retire Early.app"
             BlueprintName = "Retire Early"
             ReferencedContainer = "container:Retire Early.xcodeproj">
          </BuildableReference>
