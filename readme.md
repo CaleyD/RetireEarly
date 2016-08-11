@@ -1,8 +1,23 @@
-Notes:
+## TODO:
+
+* visually denote years post FI
+* add disclaimer
+* add information about how to calculate various values and present in both the intro and edit screens
+* add "more info" screen with links to MMM, jlcollins, ... "BEST OF" - these links should be pulled from the cloud so they can be updated independently of the App
+* allow user to adjust return and SWR percentages
+* allow user to adjust retirement expenses separately
+
+Considering:
+* show graph view when editing a value
+* show monte-carlo projections like FIRECALC? PROBABLY NOT THOUGH! Too complicated to understand
+* link to or graph historic rates
+* allow user to specify inflation?
+
+## Notes:
 
 
 ### Done button issue
-The iOS number pad keybaord does not have a 'done' button. In the Objective C
+The iOS number pad keyboard does not have a 'done' button. In the Objective C
 version of this app I created an InputAccessoryView with a 'done' button. I
 don't think that's easily accomplished in React Native.
 
