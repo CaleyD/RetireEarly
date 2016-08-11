@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
-    "test": "mocha test/storeTests.js test/calculatorTests.js --compilers js:babel-core/register"
+    "test": "mocha test/storeTests.js test/calculatorTests.js --compilers js:babel-core/register",
+    "eslint": "eslint index.ios.js lib/**.js"
   },
   "dependencies": {
     "react": "^15.2.0",
@@ -20,7 +21,13 @@
     "throttle-debounce": "^1.0.1"
   },
   "devDependencies": {
+    "babel-eslint": "^6.1.2",
     "chai": "^3.5.0",
+    "eslint": "^3.2.2",
+    "eslint-config-standard": "^5.3.5",
+    "eslint-plugin-promise": "^2.0.1",
+    "eslint-plugin-react": "^6.0.0",
+    "eslint-plugin-standard": "^2.0.0",
     "mocha": "^2.5.3"
   }
 }

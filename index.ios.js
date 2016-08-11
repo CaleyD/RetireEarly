@@ -36,7 +36,7 @@ class App extends Component {
   render() {
     if(!this.state.scenario) {
       return <View><Text>Loading</Text></View>;
-    } else if(!this.state.scenario || typeof this.state.scenario.initialPortfolio !== 'number') {
+    } else if(typeof this.state.scenario.initialPortfolio !== 'number') {
       // todo: refactor conditional statement
       return <Intro onContinue={(values)=>this.continueFromIntro(values)}/>;
     } else {
