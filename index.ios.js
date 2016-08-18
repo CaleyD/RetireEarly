@@ -20,27 +20,30 @@ class App extends Component {
       const store = value ?
         createStore(reducer,  Object.freeze(JSON.parse(value))) :
         createStore(reducer);
+      const loadStateFromStore = () => {
+        const {scenario, viewDetails} = store.getState();
+        this.setState({ scenario, viewDetails });
+      };
       this.dispatch = store.dispatch.bind(store);
       this.unsubscribeStoreListener = store.subscribe(() => {
         AsyncStorage.setItem(key, JSON.stringify(store.getState()));
-        requestAnimationFrame(()=> {
-          this.setState({ scenario: store.getState().scenario });
-        });
+        requestAnimationFrame(loadStateFromStore);
       });
-      this.setState({ scenario: store.getState().scenario });
+      loadStateFromStore();
     });
   }
   componentWillUnmount() {
     this.unsubscribeStoreListener();
   }
   render() {
-    if(!this.state.scenario) {
+    const {scenario, viewDetails} = this.state;
+    if(!scenario) {
       return <View><Text>Loading</Text></View>;
-    } else if(typeof this.state.scenario.initialPortfolio !== 'number') {
+    } else if(typeof scenario.initialPortfolio !== 'number') {
       // todo: refactor conditional statement
       return <Intro onContinue={(values)=>this.continueFromIntro(values)}/>;
     } else {
-      return <OutlookPage scenario={this.state.scenario} dispatch={this.dispatch}/>;
+      return <OutlookPage scenario={scenario} viewDetails={viewDetails} dispatch={this.dispatch}/>;
     }
   }
   continueFromIntro({ initialPortfolio, income, expenses }) {
