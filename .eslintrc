@@ -20,6 +20,8 @@
     "globals": {
       "module": true,
       "require": true,
-      "WeakMap": true
+      "WeakMap": true,
+      "Map": true,
+      "setImmediate": true
     }
 }
