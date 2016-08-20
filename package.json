@@ -15,7 +15,6 @@
     "react-native-dial": "git+https://github.com/CaleyD/react-native-dial.git",
     "react-native-side-menu": "^0.20.0",
     "react-native-sortable-listview": "^0.1.1",
-    "react-native-swiper": "^1.4.9",
     "react-native-vector-icons": "^2.0.3",
     "react-redux": "^4.4.5",
     "redux": "^3.5.2",
