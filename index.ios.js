@@ -1,8 +1,8 @@
 'use strict';
 import React, { Component } from 'react';
 import { AppRegistry, AsyncStorage, View, Text } from 'react-native';
-import OutlookPage from './lib/outlookPage';
-import Intro from './lib/intro';
+import OutlookPage from './lib/components/outlookPage';
+import Intro from './lib/components/intro';
 import { createStore } from 'redux';
 import reducer, { setInitialPortfolio, editPeriod } from './lib/reducers/index.js';
 const key = 'scenario';
