@@ -8,14 +8,14 @@
     "eslint": "eslint index.ios.js lib/**/*.js lib/*.js"
   },
   "dependencies": {
-    "react": "^15.2.0",
+    "react": "^15.2.1",
     "react-addons-pure-render-mixin": "^15.2.0",
     "react-addons-update": "^15.2.0",
-    "react-native": "^0.29.0",
+    "react-native": "^0.31.0",
     "react-native-dial": "git+https://github.com/CaleyD/react-native-dial.git",
     "react-native-side-menu": "^0.20.0",
-    "react-native-sortable-listview": "0.0.8",
-    "react-native-swiper": "^1.4.6",
+    "react-native-sortable-listview": "^0.1.1",
+    "react-native-swiper": "^1.4.9",
     "react-native-vector-icons": "^2.0.3",
     "react-redux": "^4.4.5",
     "redux": "^3.5.2",
@@ -24,11 +24,11 @@
   "devDependencies": {
     "babel-eslint": "^6.1.2",
     "chai": "^3.5.0",
-    "eslint": "^3.2.2",
+    "eslint": "^3.3.1",
     "eslint-config-standard": "^5.3.5",
     "eslint-plugin-promise": "^2.0.1",
-    "eslint-plugin-react": "^6.0.0",
+    "eslint-plugin-react": "^6.1.2",
     "eslint-plugin-standard": "^2.0.0",
-    "mocha": "^2.5.3"
+    "mocha": "^3.0.2"
   }
 }
