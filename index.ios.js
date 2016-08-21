@@ -5,7 +5,8 @@ import OutlookPage from './lib/components/outlookPage';
 import Intro from './lib/components/intro';
 import { createStore } from 'redux';
 import { Provider } from 'react-redux';
-import reducer, { setInitialPortfolio, editPeriod } from './lib/reducers/index.js';
+import reducer from './lib/reducers/index.js';
+import { setInitialPortfolio, editPeriod } from './lib/reducers/scenario.js'
 const key = 'scenario';
 
 class App extends Component {
