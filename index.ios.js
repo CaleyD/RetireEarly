@@ -4,6 +4,7 @@ import { AppRegistry, AsyncStorage, View, Text } from 'react-native';
 import OutlookPage from './lib/components/outlookPage';
 import Intro from './lib/components/intro';
 import { createStore } from 'redux';
+import { Provider } from 'react-redux';
 import reducer, { setInitialPortfolio, editPeriod } from './lib/reducers/index.js';
 const key = 'scenario';
 
@@ -17,16 +18,14 @@ class App extends Component {
       if(err) {
         throw err;
       }
-      const store = value ?
+      this.store = value ?
         createStore(reducer,  Object.freeze(JSON.parse(value))) :
         createStore(reducer);
       const loadStateFromStore = () => {
-        const {scenario, viewDetails} = store.getState();
-        this.setState({ scenario, viewDetails });
+        this.setState({ scenario: this.store.getState().scenario });
       };
-      this.dispatch = store.dispatch.bind(store);
-      this.unsubscribeStoreListener = store.subscribe(() => {
-        AsyncStorage.setItem(key, JSON.stringify(store.getState()));
+      this.unsubscribeStoreListener = this.store.subscribe(() => {
+        AsyncStorage.setItem(key, JSON.stringify(this.store.getState()));
         requestAnimationFrame(loadStateFromStore);
       });
       loadStateFromStore();
@@ -36,19 +35,23 @@ class App extends Component {
     this.unsubscribeStoreListener();
   }
   render() {
-    const {scenario, viewDetails} = this.state;
-    if(!scenario) {
+    if(!this.store) {
       return <View><Text>Loading</Text></View>;
-    } else if(typeof scenario.initialPortfolio !== 'number') {
-      // todo: refactor conditional statement
-      return <Intro onContinue={(values)=>this.continueFromIntro(values)}/>;
     } else {
-      return <OutlookPage scenario={scenario} viewDetails={viewDetails} dispatch={this.dispatch}/>;
+      const {scenario} = this.store.getState();
+      return (
+        <Provider store={this.store}>
+          {(typeof scenario.initialPortfolio !== 'number') ?
+            <Intro onContinue={values=>this.continueFromIntro(values)}/> :
+            <OutlookPage/>
+          }
+        </Provider>
+      );
     }
   }
   continueFromIntro({ initialPortfolio, income, expenses }) {
-    this.dispatch(setInitialPortfolio(initialPortfolio));
-    this.dispatch(editPeriod(this.state.scenario.incomePeriods[0], { income, expenses }));
+    this.store.dispatch(setInitialPortfolio(initialPortfolio));
+    this.store.dispatch(editPeriod(this.state.scenario.incomePeriods[0], { income, expenses }));
   }
 }
 
