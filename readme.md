@@ -31,6 +31,8 @@ https://github.com/veddermatic/react-native-multipicker
 
 # Notes to share with user
 
+Early retirement planning helper for savers.
+
 simple inputs to promote playing around with different scenarios
 
 imprecise inputs to avoid false precision
