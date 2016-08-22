@@ -42,6 +42,10 @@ pre-tax, post-tax? assumes you have access to the cash at retirement (likely you
 
 Dont bother entering precise numbers - estimates won't pan out precisely anyways
 
+  * What if you didn't have to wait till 65 to retire...
+  * Make a decent income, reduce your expenses, and invest - financial independence could become reality.
+  * Debt, overconsumption, and financial dependence are normal - don't be normal!
+
 # installation
 npm install
 rnpm link
