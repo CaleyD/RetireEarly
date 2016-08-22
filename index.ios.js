@@ -1,60 +1,45 @@
 'use strict';
 import React, { Component } from 'react';
-import { AppRegistry, AsyncStorage, View, Text } from 'react-native';
+import { AppRegistry, View, Text } from 'react-native';
 import OutlookPage from './lib/components/outlookPage';
 import Intro from './lib/components/intro';
-import { createStore } from 'redux';
-import { Provider } from 'react-redux';
-import reducer from './lib/reducers/index.js';
+import { Provider, connect } from 'react-redux';
 import { setInitialPortfolio, editPeriod } from './lib/reducers/scenario.js'
-const key = 'scenario';
+import store from './store.js';
 
-class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { scenario: null };
-
-    // init store
-    AsyncStorage.getItem(key, (err, value) => {
-      if(err) {
-        throw err;
+const Routes = ({ introCompleted, storageLoaded }) => (
+  <Provider store={store}>
+    {!storageLoaded ?
+      <View><Text>Loading</Text></View>
+      :
+      {!introCompleted ?
+        <Intro onContinue={continueFromIntro}/> :
+        <OutlookPage/>
       }
-      this.store = value ?
-        createStore(reducer,  Object.freeze(JSON.parse(value))) :
-        createStore(reducer);
-      const loadStateFromStore = () => {
-        this.setState({ scenario: this.store.getState().scenario });
-      };
-      this.unsubscribeStoreListener = this.store.subscribe(() => {
-        AsyncStorage.setItem(key, JSON.stringify(this.store.getState()));
-        requestAnimationFrame(loadStateFromStore);
-      });
-      loadStateFromStore();
-    });
-  }
-  componentWillUnmount() {
-    this.unsubscribeStoreListener();
-  }
-  render() {
-    if(!this.store) {
-      return <View><Text>Loading</Text></View>;
-    } else {
-      const {scenario} = this.store.getState();
-      return (
-        <Provider store={this.store}>
-          {(typeof scenario.initialPortfolio !== 'number') ?
-            <Intro onContinue={values=>this.continueFromIntro(values)}/> :
-            <OutlookPage/>
-          }
-        </Provider>
-      );
     }
-  }
-  continueFromIntro({ initialPortfolio, income, expenses }) {
-    this.store.dispatch(setInitialPortfolio(initialPortfolio));
-    this.store.dispatch(editPeriod(this.state.scenario.incomePeriods[0], { income, expenses }));
-  }
+  </Provider>
+);
+
+function continueFromIntro({ initialPortfolio, income, expenses }) {
+  store.dispatch(setInitialPortfolio(initialPortfolio));
+  store.dispatch(editPeriod(
+    store.getState().scenario.incomePeriods[0],
+    { income, expenses }
+  ));
 }
+
+const ConnectedRoutes = connect(
+  ({scenario, storage}) => ({
+    introCompleted: scenario.initialPortfolio === 'number',
+    storageLoaded: storage.storageLoaded
+  })
+)(Routes);
+
+const App = () => (
+  <Provider store={store}>
+    <ConnectedRoutes />
+  </Provider>
+);
 
 AppRegistry.registerComponent('EarlyRetireCalc', () => App);
 
