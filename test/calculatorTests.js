@@ -1,6 +1,6 @@
-import chai, {expect} from 'chai';
+import chai, { expect } from 'chai';
 chai.should();
-let {calculate} = require('../lib/calculator.js');
+import { calculate } from '../lib/calculator.js';
 
 describe('Calculator', () => {
   it('should return error object if scenario is incomplete', () => {
