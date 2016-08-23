@@ -11,6 +11,7 @@
     "react": "^15.2.1",
     "react-addons-pure-render-mixin": "^15.2.0",
     "react-native": "^0.31.0",
+    "react-native-communications": "^2.1.0",
     "react-native-dial": "git+https://github.com/CaleyD/react-native-dial.git",
     "react-native-side-menu": "^0.20.0",
     "react-native-sortable-listview": "^0.1.1",
