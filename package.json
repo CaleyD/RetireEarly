@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "test": "mocha test/storeTests.js test/calculatorTests.js --compilers js:babel-core/register",
-    "eslint": "eslint index.ios.js lib/**/*.js lib/*.js"
+    "eslint": "eslint index.ios.js lib"
   },
   "dependencies": {
     "react": "^15.2.1",
