@@ -58,7 +58,7 @@ describe('Calculator', () => {
     ]);
   });
 
-  if('should calculate retirement portfolio value based on withdrawal rate and final income period', () => {
+  if ('should calculate retirement portfolio value based on withdrawal rate and final income period', () => {
     calculate({
       annualReturn: .05, initialPortfolio: 50000,
       withdrawalRate: .04,
