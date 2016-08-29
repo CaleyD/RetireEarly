@@ -38,7 +38,7 @@
       "no-empty-class": 0,          // disallow the use of empty character classes in regular expressions
       "no-ex-assign": 2,            // disallow assigning to the exception in a catch block
       "no-extra-boolean-cast": 0,   // disallow double-negation boolean casts in a boolean context
-      "no-extra-parens": 2,         // disallow unnecessary parentheses (off by default)
+      "no-extra-parens": 0,         // disallow unnecessary parentheses (off by default)
       "no-extra-semi": 2,           // disallow unnecessary semicolons
       "no-func-assign": 2,          // disallow overwriting functions written as function declarations
       "no-inner-declarations": 0,   // disallow function or variable declarations in nested blocks
@@ -150,7 +150,7 @@
       "func-style": 0,                // enforces use of function declarations or expressions (off by default)
       "key-spacing": 0,               // enforces spacing between keys and values in object literal properties
       "max-nested-callbacks": 0,      // specify the maximum depth callbacks can be nested (off by default)
-      "new-cap": 2,                   // require a capital letter for constructors
+      "new-cap": 0,                   // require a capital letter for constructors
       "new-parens": 2,                // disallow the omission of parentheses when invoking a constructor with no arguments
       "no-array-constructor": 0,      // disallow use of the Array constructor
       "no-inline-comments": 2,        // disallow comments inline after code (off by default)
