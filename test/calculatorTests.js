@@ -49,7 +49,7 @@ describe('Calculator', () => {
     });
 
     results.should.have.property('yearsToRetirement', 4.942841675617492);
-    results.annualBalances.should.deep.equal([
+    results.annualBalances.map(({balance}) => balance)should.deep.equal([
       132500,
       219125,
       310081.25,
@@ -90,7 +90,7 @@ describe('Calculator', () => {
     });
 
     results.should.have.property('yearsToRetirement', 4.285531754565387);
-    results.annualBalances.should.deep.equal([
+    results.annualBalances.map({ balance } => balance).should.deep.equal([
       286000,
       376300,
       471115,
