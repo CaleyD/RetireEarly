@@ -48,14 +48,17 @@ describe('Calculator', () => {
       incomePeriods: [{income: 100000, expenses: 20000}]
     });
 
-    results.should.have.property('yearsToRetirement', 4.942841675617492);
-    results.annualBalances.map(({balance}) => balance)should.deep.equal([
-      132500,
-      219125,
-      310081.25,
-      405585.3125,
-      505864.578125
-    ]);
+    results.should.have.property('yearsToRetirement', 4.9);
+    results.annualBalances.
+      map(({balance}) => balance).
+      slice(0, 5).
+      should.deep.equal([
+        132500,
+        219125,
+        310081,
+        405585,
+        505865
+      ]);
   });
 
   if ('should calculate retirement portfolio value based on withdrawal rate and final income period', () => {
@@ -65,7 +68,7 @@ describe('Calculator', () => {
       incomePeriods: [
         {income: 100000, expenses: 12345}
       ]
-    }).retirementPortfolio.should.equal(12345/.04);
+    }).retirementPortfolio.should.equal(4.9);
 
     calculate({
       annualReturn: .05, initialPortfolio: 50000,
@@ -89,14 +92,17 @@ describe('Calculator', () => {
       ]
     });
 
-    results.should.have.property('yearsToRetirement', 4.285531754565387);
-    results.annualBalances.map({ balance } => balance).should.deep.equal([
-      286000,
-      376300,
-      471115,
-      570670.75,
-      675204.2875
-    ]);
+    results.should.have.property('yearsToRetirement', 4.3);
+    results.annualBalances.
+      map(({ balance }) => balance).
+      slice(0, 5).
+      should.deep.equal([
+        286000,
+        376300,
+        471115,
+        570671,
+        675204
+      ]);
   });
 
   it('should calculate years to retirement for multiple income periods', () => {
@@ -109,6 +115,6 @@ describe('Calculator', () => {
         ,,, // holes represent years with the previous income/expenses
         {income: 150000, expenses: 40000}
       ]
-    }).should.have.property('yearsToRetirement', 11.67969232774509);
+    }).should.have.property('yearsToRetirement', 11.7);
   });
 });
