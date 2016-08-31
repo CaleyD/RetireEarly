@@ -1,7 +1,9 @@
+/* global it, describe, beforeEach */
+/* eslint max-nested-callbacks: ["error", 6] */
 import reducers from '../lib/reducers/index.js';
 import {
-  addPeriod, deletePeriod, editPeriod, movePeriod, setAnnualReturn, setWithdrawalRate,
-  setInitialPortfolio, reset
+  addPeriod, deletePeriod, editPeriod, movePeriod, setAnnualReturn,
+  setWithdrawalRate, setInitialPortfolio, reset
 } from '../lib/reducers/index.js';
 import {createStore} from 'redux';
 import chai, {expect} from 'chai';
@@ -26,19 +28,17 @@ describe('Store actions', () => {
 
       store.getState().scenario.incomePeriods.should.deep.equal([
         {income: 2, expenses: 2.2},
-        {income: 3, expenses: 3.3},
-        ,,,,
+        {income: 3, expenses: 3.3},,,,,
         {income: 4, expenses: 4.4}
       ]);
     });
 
     it('should add period and default to preceeding period\'s values', () => {
-      store.dispatch(addPeriod(1, 1.1, 0));
-      store.dispatch(addPeriod(undefined, undefined, 2));
+      store.dispatch(addPeriod({ income: 1, expenses: 1.1, year: 0 }));
+      store.dispatch(addPeriod({ year: 2 }));
 
       store.getState().scenario.incomePeriods.should.deep.equal([
-        {income: 1, expenses: 1.1},
-        ,
+        {income: 1, expenses: 1.1},,
         {income: 1, expenses: 1.1}
       ]);
     });
@@ -55,17 +55,18 @@ describe('Store actions', () => {
         [period1, , period3]);
     });
 
-    it('should not leave holes at the end of incomePeriods array when deleting', () => {
+    it('should not leave holes at the end of incomePeriods array when deleting',
+      () => {
       store.dispatch(addPeriod(1, 1.1, 0));
       store.dispatch(addPeriod(3, 3.3, 3));
-      let [period1,,,period4] = store.getState().scenario.incomePeriods;
+      let [period1,,, period4] = store.getState().scenario.incomePeriods;
 
       store.dispatch(deletePeriod(period4));
 
       store.getState().scenario.incomePeriods.should.
         deep.equal([period1]).
         and.to.have.property('length', 1);
-    })
+    });
 
     it('should not allow deleting income period at index 0', () => {
       store.dispatch(addPeriod(10000, 9999, 0));
@@ -82,7 +83,7 @@ describe('Store actions', () => {
       store.dispatch(editPeriod(period2, {expenses: 999}));
 
       store.getState().scenario.incomePeriods.should.deep.equal([
-        {income:888, expenses: 1.1},
+        {income: 888, expenses: 1.1},
         {income: 2, expenses: 999}
       ]);
     });
@@ -95,7 +96,7 @@ describe('Store actions', () => {
         store.dispatch(movePeriod(period2, 5));
 
         store.getState().scenario.incomePeriods.should.deep.equal(
-          [period1,,,,,period2]);
+          [period1,,,,, period2]);
     });
 
     it('Should not allow moving index period at index 0', () => {
@@ -110,7 +111,7 @@ describe('Store actions', () => {
     it('Should not allow moving a period that is not in incomePeriods', () => {
       store.dispatch(addPeriod(1, 1.1, 0));
       store.dispatch(addPeriod(2, 2.2, 1));
-      let [,period2] = store.getState().scenario.incomePeriods;
+      let [, period2] = store.getState().scenario.incomePeriods;
       store.dispatch(deletePeriod(period2));
 
       expect(()=>store.dispatch(movePeriod({income: 1, expenses: 2}, 1))
@@ -122,7 +123,7 @@ describe('Store actions', () => {
     it('Should trim holes from end of incomePeriods array after moving', () => {
       store.dispatch(addPeriod(1, 1.1, 0));
       store.dispatch(addPeriod(2, 2.2, 5));
-      let [period1,,,,,period2] = store.getState().scenario.incomePeriods;
+      let [period1,,,,, period2] = store.getState().scenario.incomePeriods;
 
       store.dispatch(movePeriod(period2, 1));
 
