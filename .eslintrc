@@ -27,7 +27,7 @@
     "rules": {
       ////////// Possible Errors //////////
 
-      "no-comma-dangle": 0,         // disallow trailing commas in object literals
+      "comma-dangle": 2,         // disallow trailing commas in object literals
       "no-cond-assign": 2,          // disallow assignment in conditional expressions
       "no-console": 0,              // disallow use of console (off by default in the node environment)
       "no-constant-condition": 1,   // disallow use of constant expressions in conditions
@@ -101,7 +101,7 @@
       "radix": 2,                 // require use of the second argument for parseInt() (off by default)
       "vars-on-top": 0,           // requires to declare all vars on top of their containing scope (off by default)
       "wrap-iife": 2,             // require immediate function invocation to be wrapped in parentheses (off by default)
-      "yoda": 0,                  // require or disallow Yoda conditions
+      "yoda": 2,                  // require or disallow Yoda conditions
 
 
       ////////// Strict Mode //////////
@@ -117,7 +117,7 @@
       "no-shadow": 0,                   // disallow declaration of variables already declared in the outer scope
       "no-shadow-restricted-names": 0,  // disallow shadowing of names such as arguments
       "no-undef": 2,                    // disallow use of undeclared variables unless mentioned in a /*global */ block
-      "no-undef-init": 0,               // disallow use of undefined when initializing variables
+      "no-undef-init": 2,               // disallow use of undefined when initializing variables
       "no-undefined": 2,                // disallow use of undefined variable (off by default)
       "no-unused-vars": 2,              // disallow declaration of variables that are not used in the code
       "no-use-before-define": 0,        // disallow use of variables before they are defined
@@ -128,18 +128,18 @@
       "handle-callback-err": 0,   // enforces error handling in callbacks (off by default) (on by default in the node environment)
       "no-mixed-requires": 0,     // disallow mixing regular variable and require declarations (off by default) (on by default in the node environment)
       "no-new-require": 0,        // disallow use of new operator with the require function (off by default) (on by default in the node environment)
-      "no-path-concat": 0,        // disallow string concatenation with __dirname and __filename (off by default) (on by default in the node environment)
-      "no-process-exit": 0,       // disallow process.exit() (on by default in the node environment)
+      "no-path-concat": 2,        // disallow string concatenation with __dirname and __filename (off by default) (on by default in the node environment)
+      "no-process-exit": 2,       // disallow process.exit() (on by default in the node environment)
       "no-restricted-modules": 0, // restrict usage of specified node modules (off by default)
       "no-sync": 0,               // disallow use of synchronous methods (off by default)
 
 
       ////////// Stylistic Issues //////////
 
-      "brace-style": 0,               // enforce one true brace style (off by default)
-      "camelcase": 0,                 // require camel case names
-      "comma-spacing": 0,             // enforce spacing before and after comma
-      "comma-style": 0,               // enforce one true comma style (off by default)
+      "brace-style": ["error", "1tbs", { "allowSingleLine": true }], // enforce one true brace style (off by default)
+      "camelcase": 2,                 // require camel case names
+      "comma-spacing": ["error", { "before": false, "after": true }], // enforce spacing before and after comma
+      "comma-style": ["error", "last"], // enforce one true comma style (off by default)
       "consistent-this": 2,           // enforces consistent naming when capturing the current execution context (off by default)
       "eol-last": 0,                  // enforce newline at the end of file, with no multiple empty lines
       "func-names": 0,                // require function expressions to have a name (off by default)
@@ -164,7 +164,7 @@
       "operator-assignment": 0,       // require assignment operator shorthand where possible or prohibit it entirely (off by default)
       "padded-blocks": 0,             // enforce padding within blocks (off by default)
       "quote-props": 0,               // require quotes around object literal property names (off by default)
-      "quotes": 0,                    // specify whether double or single quotes should be used
+      "quotes": ["error", "single"],  // specify whether double or single quotes should be used
       "semi": 2,                      // require or disallow use of semicolons instead of ASI
       "sort-vars": 0,                 // sort variables within the same declaration block (off by default)
       "space-before-function-paren": 2, // require a space after function names (off by default)
