@@ -70,7 +70,7 @@ describe('Calculator', () => {
       incomePeriods: [
         {income: 100000, expenses: 12345}
       ]
-    }).retirementPortfolio.should.equal(4.9);
+    }).yearsToRetirement.should.equal(2.7);
 
     calculate({
       annualReturn: .05, initialPortfolio: 50000,
@@ -80,7 +80,7 @@ describe('Calculator', () => {
         {income: 100000, expenses: 40000},,,,
         {income: 100000, expenses: 35000}
       ]
-    }).retirementPortfolio.should.equal(35000 / .03);
+    }).retirementPortfolio.should.equal(1166667);
   });
 
   it('should calculate years to retirement for single income period', () => {
