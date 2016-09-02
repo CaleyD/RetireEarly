@@ -309,6 +309,10 @@ var SortableListView = React.createClass({
   getScrollResponder: function() {
     return this.scrollResponder;
   },
+  // CUSTOM! passthrough scrollTo call
+  scrollTo: function(options) {
+    this.refs.list.scrollTo(options);
+  },
   render: function() {
     let dataSource = this.state.ds.cloneWithRows(this.props.data, this.props.order);
     return <View ref="wrapper" style={{flex: 1}} onLayout={()=>{}}>
