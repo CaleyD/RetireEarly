@@ -1,4 +1,5 @@
-import chai, { expect } from 'chai';
+/* global it, describe */
+import chai from 'chai';
 chai.should();
 import { calculate } from '../lib/calculator.js';
 
@@ -61,25 +62,25 @@ describe('Calculator', () => {
       ]);
   });
 
-  if ('should calculate retirement portfolio value based on withdrawal rate and final income period', () => {
+  it('should calculate retirement portfolio value based on withdrawal rate ' +
+      'and final income period', () => {
     calculate({
       annualReturn: .05, initialPortfolio: 50000,
       withdrawalRate: .04,
       incomePeriods: [
         {income: 100000, expenses: 12345}
       ]
-    }).retirementPortfolio.should.equal(4.9);
+    }).yearsToRetirement.should.equal(2.7);
 
     calculate({
       annualReturn: .05, initialPortfolio: 50000,
       withdrawalRate: .03,
       incomePeriods: [
         {income: 100000, expenses: 12345},
-        {income: 100000, expenses: 40000},
-        ,,,
+        {income: 100000, expenses: 40000},,,,
         {income: 100000, expenses: 35000}
       ]
-    }).retirementPortfolio.should.equal(35000/.03);
+    }).retirementPortfolio.should.equal(1166667);
   });
 
   it('should calculate years to retirement for single income period', () => {
@@ -111,10 +112,12 @@ describe('Calculator', () => {
       initialPortfolio: 0,
       withdrawalRate: .04,
       incomePeriods: [
-        {income: 100000, expenses: 100000},
-        ,,, // holes represent years with the previous income/expenses
+        {income: 100000, expenses: 100000},,,,
+        // holes represent years with the previous income/expenses
         {income: 150000, expenses: 40000}
       ]
-    }).should.have.property('yearsToRetirement', 11.7);
+    });
+
+    results.should.have.property('yearsToRetirement', 11.7);
   });
 });
